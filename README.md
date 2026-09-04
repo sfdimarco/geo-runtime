@@ -88,3 +88,14 @@ missing phase.
 
 `hello::RES` is that constant. `run.mjs` reads it **out of the wasm** — the
 harness is never told what it was built from, it asks.
+
+## Documentation
+
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — what was built, the one idea it
+  rests on, how the bound is enforced, every decision and what it cost, where the time
+  actually goes now, and a closing section on what is *not* proven.
+- **[docs/COMPETITIVE-BRIEF.md](docs/COMPETITIVE-BRIEF.md)** — where `.geo` sits against
+  Rive, Spine, glTF (+ `KHR_interactivity`), Lottie and Three.js. Honest about where each
+  of them wins, which is most rows.
+- **[docs/GEO-V0-SPEC.md](docs/GEO-V0-SPEC.md)** — the format, including every rejection
+  code and what the ISA refuses to encode.
