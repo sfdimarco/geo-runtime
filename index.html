@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>geo-runtime</title>
+<style>
+  :root{
+    --bg:#0B0F11; --panel:#141A1D; --sunk:#0D1315; --line:#243035; --hair:#1A2427;
+    --tx:#E4EDEF; --dim:#9CACB0; --faint:#6C7C81;
+    --cyan:#2FD0DE; --red:#F2594C; --amber:#E2B33A; --good:#4FD68C;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:15px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+  .wrap{max-width:860px;margin:0 auto;padding:56px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:36px}
+  h1{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    font-size:26px;letter-spacing:.02em;margin:0 0 10px;color:var(--cyan);font-weight:700}
+  .tag{font-size:18px;color:var(--tx);margin:0 0 6px;line-height:1.45}
+  .by{font-size:13px;color:var(--faint);margin:14px 0 0}
+  .by a{color:var(--dim)}
+  h2{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);
+    margin:44px 0 16px;font-weight:700}
+  p{margin:0 0 14px;color:var(--dim)}
+  p strong{color:var(--tx);font-weight:600}
+  a{color:var(--cyan)}
+  .cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{display:block;text-decoration:none;background:var(--panel);
+    border:1px solid var(--line);border-radius:6px;padding:18px 18px 20px;
+    transition:border-color .15s,transform .15s}
+  .card:hover{border-color:var(--cyan);transform:translateY(-2px)}
+  .card .k{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);
+    display:block;margin-bottom:8px}
+  .card .t{display:block;color:var(--tx);font-size:16px;font-weight:600;margin-bottom:6px}
+  .card .d{display:block;color:var(--dim);font-size:13px;line-height:1.5}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 8px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--hair)}
+  th{color:var(--faint);font-weight:600;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase}
+  td:last-child{text-align:right;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-variant-numeric:tabular-nums;color:var(--tx)}
+  td.win:last-child{color:var(--cyan);font-weight:700}
+  .scroll{overflow-x:auto}
+  .honest{background:var(--sunk);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:0 6px 6px 0;padding:18px 20px}
+  .honest ul{margin:0;padding-left:20px;color:var(--dim)}
+  .honest li{margin-bottom:9px}
+  .honest li:last-child{margin-bottom:0}
+  .honest b{color:var(--tx);font-weight:600}
+  .docs{display:flex;flex-wrap:wrap;gap:10px}
+  .docs a{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+    text-decoration:none;border:1px solid var(--line);border-radius:4px;
+    padding:8px 13px;color:var(--dim);transition:border-color .15s,color .15s}
+  .docs a:hover{border-color:var(--cyan);color:var(--cyan)}
+  code{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+    background:var(--sunk);border:1px solid var(--hair);border-radius:3px;
+    padding:1px 6px;font-size:.9em;color:var(--tx)}
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--faint);font-size:13px}
+  footer a{color:var(--dim)}
+  @media (max-width:560px){ .wrap{padding:36px 18px 60px} h1{font-size:22px} .tag{font-size:16px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>geo-runtime</h1>
+  <p class="tag">A file format, the machine that runs it, and the proof that it works.</p>
+  <p class="by">Sean &ldquo;Mook&rdquo; DiMarco &middot;
+    <a href="https://github.com/sfdimarco/geo-runtime">source on GitHub</a> &middot;
+    <a href="https://sfdimarco.github.io/">sfdimarco.github.io</a></p>
+</header>
+
+<p>Most graphics formats <strong>ship the finished picture</strong> &mdash; every point, every
+frame, written down. This one <strong>ships the recipe</strong>: a 2,320-byte program that the
+machine runs to bake the picture fresh, 135&times; smaller than what it produces.</p>
+
+<p>The recipe is not the interesting part. Normally a program says <em>&ldquo;keep going until
+you&rsquo;re done,&rdquo;</em> so the computer cannot know how much memory to reserve &mdash; it
+grabs some, fills it, throws it away, grabs more. That scrambling is where the time goes.
+So the language <strong>has no way to say &ldquo;keep going until.&rdquo;</strong> You can only
+write things whose size can be counted before execution starts. One allocation, chosen up
+front, never replaced.</p>
+
+<p><strong>The language was made weaker on purpose. That is the thing that made it fast.</strong></p>
+
+<h2>Run it in your browser</h2>
+<div class="cards">
+  <a class="card" href="web/rig.html">
+    <span class="k">Sprint 1</span>
+    <span class="t">The character</span>
+    <span class="d">A 2,320-byte <code>.geo</code> program builds and poses the figure. Drag to orbit it. The pose is resolved inside the VM &mdash; JavaScript resolves nothing.</span>
+  </a>
+  <a class="card" href="dist/">
+    <span class="k">Sprint 0</span>
+    <span class="t">The instrument</span>
+    <span class="d">The engine with its own measuring rig attached. Move the resolution slider and watch each phase of the frame cost respond live.</span>
+  </a>
+  <a class="card" href="docs/sprint1.html">
+    <span class="k">Readout</span>
+    <span class="t">2,320 Bytes</span>
+    <span class="d">The written result: what was built, what was measured, how it was measured, and what the measurement does not cover.</span>
+  </a>
+</div>
+
+<h2>What was measured</h2>
+<div class="scroll">
+<table>
+  <tr><th>Result</th><th></th></tr>
+  <tr class="win"><td>Mesh build, this runtime vs. the JavaScript engine it replaces</td><td class="win">0.195 ms vs 1.960 ms &mdash; 10.0&times;</td></tr>
+  <tr><td>The whole program that draws the character</td><td>2,320 bytes</td></tr>
+  <tr><td>Output checked against the original, point by point, at 14 moments along the plan</td><td>byte-identical</td></tr>
+  <tr><td>Deliberately corrupted programs thrown at the loader</td><td>4,000 &rarr; 0 crashes</td></tr>
+  <tr><td>Full proof suite, one command (<code>./test.sh</code>), six gates</td><td>~90 s, all green</td></tr>
+</table>
+</div>
+
+<h2>What this does not prove</h2>
+<div class="honest">
+<ul>
+  <li><b>The 10&times; is no longer where the time goes.</b> Uploading the mesh to the GPU is now
+    <b>84% of the CPU frame</b> and the build is 14%. Making the build faster again would barely
+    move the total. The next real win is the upload, not the decode.</li>
+  <li><b>A control that could have embarrassed the result was run, and it nearly did.</b> The same
+    JavaScript, writing into a pre-allocated typed array with no rewrite at all, cleared the same
+    performance gate at 3.5&times;. Architecture accounts for 3.5&times; of the win; the language
+    change accounts for 3.0&times;.</li>
+  <li><b>The memory ceiling is declared, not derived.</b> It is asserted by the format and fuzzed
+    hard, but it is not yet computed from the structure itself.</li>
+  <li>One character, one plan &mdash; a deep check of a narrow input, not a broad one.</li>
+</ul>
+</div>
+
+<h2>Read it</h2>
+<div class="docs">
+  <a href="https://github.com/sfdimarco/geo-runtime/blob/main/docs/ARCHITECTURE.md">ARCHITECTURE.md</a>
+  <a href="https://github.com/sfdimarco/geo-runtime/blob/main/docs/COMPETITIVE-BRIEF.md">COMPETITIVE-BRIEF.md</a>
+  <a href="https://github.com/sfdimarco/geo-runtime/blob/main/docs/GEO-V0-SPEC.md">GEO-V0-SPEC.md</a>
+  <a href="docs/sprint0.html">Sprint 0 readout</a>
+  <a href="https://github.com/sfdimarco/geo-runtime">Full source</a>
+</div>
+
+<footer>
+  Built in Rust, compiled to WebAssembly, drawn with WebGL2.
+  <a href="https://sfdimarco.github.io/geov/">GeoV Studio</a>, the animation tool this engine was
+  measured against, is also live.
+</footer>
+
+</div>
+</body>
+</html>
