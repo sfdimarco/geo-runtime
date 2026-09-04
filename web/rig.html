@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>geo-runtime · sprint 1 · the slice</title>
+<style>
+  :root{
+    --bg:#0A0E10; --panel:#131A1D; --sunk:#0D1315; --line:#243035; --hair:#1A2427;
+    --tx:#E4EDEF; --dim:#9AABAF; --faint:#6B7B80;
+    --cyan:#2FD0DE; --red:#F2594C; --amber:#E2B33A; --good:#4FD68C;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:13px/1.5 "JetBrains Mono",ui-monospace,Menlo,monospace;
+    display:grid;grid-template-columns:1fr 330px;overflow:hidden}
+  #view{position:relative;display:grid;place-items:center;min-width:0;min-height:0}
+  canvas{display:block;max-width:100%;max-height:100vh;cursor:grab;
+    background:radial-gradient(120% 85% at 50% 22%, #1B262B 0%, #10171A 45%, #080C0E 100%)}
+  canvas:active{cursor:grabbing}
+  aside{border-left:1px solid var(--line);background:var(--panel);
+    display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;overflow:hidden}
+  .head{padding:14px 14px 10px;border-bottom:1px solid var(--hair)}
+  .read{padding:12px 14px 14px;overflow-y:auto;min-height:0;
+    display:flex;flex-direction:column;gap:14px}
+  /* the controls are PINNED. They cannot scroll out of reach at any height. */
+  .deck{padding:11px 14px 13px;border-top:1px solid var(--line);background:var(--sunk);
+    display:flex;flex-direction:column;gap:9px}
+  h1{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin:0;font-weight:700}
+  .sub{color:var(--faint);font-size:11px;margin:2px 0 0}
+  .grp{display:flex;flex-direction:column;gap:4px}
+  .grp h2{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);
+    margin:0 0 3px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+  .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .row span:first-child{color:var(--dim)}
+  .row b{font-weight:700;font-variant-numeric:tabular-nums}
+  .big b{font-size:20px;color:var(--cyan)}
+  .ok{color:var(--good)} .bad{color:var(--red)} .warn{color:var(--amber)}
+  .note{font-size:10px;color:var(--faint);line-height:1.4}
+
+  /* ⚠ PRESENT IS NOT REACHABLE. Controls get their own full-width rows and a
+     min-height that a range input cannot be squeezed under — the v36 DEPTH
+     slider was visible, on screen, and covered by the next panel for months. */
+  .ctl{display:flex;flex-direction:column;gap:2px;width:100%;min-height:34px}
+  .ctl label{color:var(--dim);font-size:10.5px;display:flex;justify-content:space-between}
+  .ctl input[type=range]{width:100%;min-width:0;height:22px;accent-color:var(--cyan);margin:0}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  button{font:inherit;font-size:11px;padding:7px 11px;min-width:44px;min-height:32px;
+    background:var(--sunk);color:var(--tx);border:1px solid var(--line);border-radius:3px;cursor:pointer}
+  button:hover{border-color:var(--cyan)}
+  button[aria-pressed="true"]{background:var(--cyan);color:#04191C;border-color:var(--cyan);font-weight:700}
+  button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  footer{color:var(--faint);font-size:10px;line-height:1.5;border-top:1px solid var(--hair);
+    padding-top:10px}
+  #err{color:var(--red);white-space:pre-wrap;font-size:11px}
+</style>
+</head>
+<body>
+<div id="view"><canvas id="c" width="820" height="760"></canvas></div>
+<aside>
+  <div class="head">
+    <h1>geo-runtime</h1>
+    <p class="sub">sprint 1 · the slice · <span id="badge">booting</span></p>
+  </div>
+
+  <div class="read">
+  <div class="grp">
+    <h2><span>The frame</span><span id="h-delta"></span></h2>
+    <div class="row big"><span>cpu total</span><b id="s-cpu">—</b></div>
+    <div class="row"><span>geo_build (wasm)</span><b id="s-build">—</b></div>
+    <div class="row"><span>view</span><b id="s-view">—</b></div>
+    <div class="row"><span>upload</span><b id="s-up">—</b></div>
+    <div class="row"><span>submit</span><b id="s-sub">—</b></div>
+    <div class="row"><span>GeoV baseline</span><b style="color:var(--red)">1.960 ms</b></div>
+  </div>
+
+  <div class="grp">
+    <h2>STCP · the whole point</h2>
+    <div class="row"><span>the .geo program</span><b id="s-prog" class="ok">—</b></div>
+    <div class="row"><span>the mesh it makes</span><b id="s-mesh">—</b></div>
+    <div class="row"><span>expansion</span><b id="s-exp" class="warn">—</b></div>
+    <p class="note">The program is what ships. The mesh is what the program
+      <em>is</em>, expanded at runtime and never stored.</p>
+  </div>
+
+  <div class="grp">
+    <h2>The mesh</h2>
+    <div class="row"><span>vertices</span><b id="s-verts">—</b></div>
+    <div class="row"><span>triangles</span><b id="s-tris">—</b></div>
+    <div class="row"><span>parts drawn</span><b id="s-groups">—</b></div>
+  </div>
+
+  <div class="grp">
+    <h2>The bound</h2>
+    <div class="row"><span>ceiling (header)</span><b id="s-ceil">—</b></div>
+    <div class="row"><span>used / ceiling</span><b id="s-head">—</b></div>
+    <div class="row"><span>arena overflow</span><b id="s-of">—</b></div>
+    <div class="row"><span>memory grew</span><b id="s-grew">—</b></div>
+    <div class="row"><span>view detached</span><b id="s-det">—</b></div>
+  </div>
+
+  <div class="grp">
+    <h2>Raster <span class="warn" style="font-size:9px">software</span></h2>
+    <div class="row"><span>gpu clock</span><b id="s-raster">—</b></div>
+    <p class="note">⚠ The VM emits <em>both</em> group colours; this draw path
+      uses <code>col_a</code> only. GeoV's split fill is the PLATE layer, and it
+      is not in Sprint 1.</p>
+  </div>
+
+  <footer>
+    <span id="f-wasm">—</span><br>
+    <span id="f-gl">—</span><br>
+    the .geo binary is the runtime
+  </footer>
+  <div id="err"></div>
+  </div><!-- /.read -->
+
+  <div class="deck">
+  <div class="btns">
+    <button id="btn-play" aria-pressed="true">⏸ pause</button>
+    <button id="btn-a">3⁄4</button>
+    <button id="btn-b">front</button>
+    <button id="btn-c">side</button>
+  </div>
+
+  <div class="ctl">
+    <label for="rig-time">time <span id="l-time">0.00 s</span></label>
+    <input id="rig-time" type="range" min="0" max="260" step="1" value="0">
+  </div>
+  <div class="ctl">
+    <label for="rig-yaw">yaw <span id="l-yaw">0°</span></label>
+    <input id="rig-yaw" type="range" min="-180" max="180" step="1" value="0">
+  </div>
+  <div class="ctl">
+    <label for="rig-el">elevation <span id="l-el">7°</span></label>
+    <input id="rig-el" type="range" min="-70" max="70" step="1" value="7">
+  </div>
+
+  </div><!-- /.deck -->
+</aside>
+
+<script type="module">
+import { Rig } from './src/rig.js';
+
+const $ = (id) => document.getElementById(id);
+const ms = (x) => x.toFixed(3) + ' ms';
+const kb = (b) => (b / 1024).toFixed(1) + ' KiB';
+const n = (x) => x.toLocaleString();
+const BASELINE = 1.960;
+
+try {
+  const geo = new Uint8Array(await (await fetch('./dummy.geo')).arrayBuffer());
+  const rig = await Rig.boot($('c'), './geokernel.wasm', geo);
+  window.RIG = rig;
+
+  $('badge').textContent = 'live';
+  $('badge').style.color = 'var(--cyan)';
+  $('f-wasm').textContent = `kernel ${n(rig.k.bytes)} B · 0 imports`;
+  $('f-gl').textContent = rig.stage.info.renderer.slice(0, 48);
+  $('s-prog').textContent = n(rig.program.bytes) + ' B';
+  $('s-ceil').textContent = n(rig.program.maxVerts) + ' verts';
+  $('rig-time').max = Math.round(rig.program.planEnd * 100);
+
+  const ANGLES = { 'btn-a': [0.62, 0.16], 'btn-b': [0.0, 0.08], 'btn-c': [Math.PI / 2, 0.08] };
+  for (const [id, [az, el]] of Object.entries(ANGLES)) {
+    $(id).addEventListener('click', () => {
+      rig.az = az; rig.el = el;
+      $('rig-yaw').value = Math.round(az * 180 / Math.PI);
+      $('rig-el').value = Math.round(el * 180 / Math.PI);
+      sync();
+    });
+  }
+  $('btn-play').addEventListener('click', () => {
+    rig.playing = !rig.playing;
+    $('btn-play').textContent = rig.playing ? '⏸ pause' : '▶ play';
+    $('btn-play').setAttribute('aria-pressed', String(rig.playing));
+  });
+  $('rig-time').addEventListener('input', (e) => {
+    rig.t = +e.target.value / 100;
+    rig.playing = false;
+    $('btn-play').textContent = '▶ play';
+    $('btn-play').setAttribute('aria-pressed', 'false');
+    sync();
+  });
+  $('rig-yaw').addEventListener('input', (e) => { rig.az = +e.target.value * Math.PI / 180; sync(); });
+  $('rig-el').addEventListener('input', (e) => { rig.el = +e.target.value * Math.PI / 180; sync(); });
+
+  const sync = () => {
+    $('l-time').textContent = rig.t.toFixed(2) + ' s';
+    $('l-yaw').textContent = Math.round(rig.az * 180 / Math.PI) + '°';
+    $('l-el').textContent = Math.round(rig.el * 180 / Math.PI) + '°';
+  };
+
+  let drag = null;
+  $('c').addEventListener('pointerdown', (e) => {
+    drag = { x: e.clientX, y: e.clientY, az: rig.az, el: rig.el };
+    $('c').setPointerCapture(e.pointerId);
+  });
+  $('c').addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    rig.az = drag.az + (e.clientX - drag.x) * 0.006;
+    rig.el = Math.max(-1.2, Math.min(1.2, drag.el + (e.clientY - drag.y) * 0.006));
+    $('rig-yaw').value = Math.round(((rig.az * 180 / Math.PI + 180) % 360 + 360) % 360 - 180);
+    $('rig-el').value = Math.round(rig.el * 180 / Math.PI);
+    sync();
+  });
+  $('c').addEventListener('pointerup', () => { drag = null; });
+
+  let last = performance.now();
+  let win = null;
+  const paint = () => {
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const s = rig.frame(dt);
+    if (rig.playing) { $('rig-time').value = Math.round((rig.t % rig.program.planEnd) * 100); sync(); }
+
+    // ⚠ THE PAGE CLOCK IS CLAMPED TO 100 µs. A single frame reads 0.200 or
+    //   0.000 and nothing between, so the HUD shows the mean of a rolling
+    //   window — the same estimator the harness uses, for the same reason.
+    if (rig.acc.n >= 30) { win = rig.meanAcc(); rig.resetAcc(); }
+    const m = win || s;
+    $('s-cpu').textContent = ms(m.cpuMs);
+    $('s-build').textContent = ms(m.buildMs);
+    $('s-view').textContent = ms(m.viewMs);
+    $('s-up').textContent = ms(m.uploadMs);
+    $('s-sub').textContent = ms(m.submitMs);
+    const d = BASELINE / Math.max(1e-6, m.buildMs);
+    $('h-delta').innerHTML = `<span class="ok">${d.toFixed(1)}× vs GeoV</span>`;
+    $('s-verts').textContent = n(s.verts);
+    $('s-tris').textContent = n(s.tris);
+    $('s-groups').textContent = s.groups;
+    $('s-mesh').textContent = kb(s.vBytes + s.iBytes);
+    $('s-exp').textContent = ((s.vBytes + s.iBytes) / s.programBytes).toFixed(0) + '×';
+    // 100% is the RESULT, not a warning: the header's ceiling is exactly what
+    // the program emits, because the bound is derived from the part counts
+    // rather than padded.
+    $('s-head').innerHTML = s.verts === s.ceiling
+      ? '<span class="ok">exact</span>'
+      : `${(100 * s.verts / s.ceiling).toFixed(1)}%`;
+    const of = rig.k.x.overflow_count();
+    const grew = rig.k.x.mem_pages() !== rig.k.pages0;
+    $('s-of').innerHTML = of ? `<span class="bad">${of}</span>` : '<span class="ok">0</span>';
+    $('s-grew').innerHTML = grew ? '<span class="bad">YES</span>' : '<span class="ok">no</span>';
+    $('s-det').innerHTML = s.detaches ? `<span class="bad">${s.detaches}×</span>` : '<span class="ok">no</span>';
+    $('s-raster').textContent = s.rasterMs === null ? '…' : ms(s.rasterMs);
+    requestAnimationFrame(paint);
+  };
+  sync();
+  requestAnimationFrame(paint);
+
+  (async () => {
+    for (;;) {
+      try { rig.stats.rasterMs = await rig.rasterMs(2); } catch { rig.stats.rasterMs = null; }
+      await new Promise((r) => setTimeout(r, 700));
+    }
+  })();
+} catch (e) {
+  $('err').textContent = String((e && e.stack) || e);
+  $('badge').textContent = 'failed';
+  $('badge').style.color = 'var(--red)';
+}
+</script>
+</body>
+</html>

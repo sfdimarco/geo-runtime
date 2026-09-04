@@ -1,0 +1,283 @@
+{
+ "when": "2026-09-03T22:27:49.213Z",
+ "sprint": 0,
+ "kernel": {
+  "res": 48,
+  "wasmBytes": 59732,
+  "maxVerts": 262144,
+  "maxIdx": 1572864,
+  "pages0": 257,
+  "memBytes": 16842752
+ },
+ "env": {
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "glVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+  "timerQuery": true,
+  "clockGrainMs": 0.1,
+  "finishIsSyncPoint": false,
+  "finishProbeMs": 0.02000000001862645,
+  "drainedBetweenPhases": true,
+  "note": "raster is SOFTWARE rasterised (SwiftShader); regression signal only"
+ },
+ "rows": [
+  {
+   "tiles": 1,
+   "verts": 2401,
+   "tris": 4608,
+   "vBytes": 76832,
+   "iBytes": 55296,
+   "genMs": 0.04999999993015081,
+   "genMin": 0.037499999976716936,
+   "viewMs": 0,
+   "uploadMs": 0.0625,
+   "submitMs": 0,
+   "cpuMs": 0.11000000000931323,
+   "cpuMedIsolated": 0.10000000009313226,
+   "cpuMin": 0.049999999813735485,
+   "inFrame": {
+    "n": 40,
+    "genMs": 0.04999999997671693,
+    "viewMs": 0,
+    "uploadMs": 0.020000000041909514,
+    "submitMs": 0.03999999999068678,
+    "cpuMs": 0.11000000000931323
+   },
+   "residualMs": 6.938893903907228e-18,
+   "crossCheck": 1.0000000009313226,
+   "rasterMs": 16.397183,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 2401,
+   "overflow": 0,
+   "pages": 257
+  },
+  {
+   "tiles": 2,
+   "verts": 4753,
+   "tris": 9216,
+   "vBytes": 152096,
+   "iBytes": 110592,
+   "genMs": 0.08750000002328306,
+   "genMin": 0.07499999995343387,
+   "viewMs": 0,
+   "uploadMs": 0.037499999976716936,
+   "submitMs": 0,
+   "cpuMs": 0.1550000000046566,
+   "cpuMedIsolated": 0.19999999972060323,
+   "cpuMin": 0.14999999990686774,
+   "inFrame": {
+    "n": 40,
+    "genMs": 0.1,
+    "viewMs": 0,
+    "uploadMs": 0.04249999998137355,
+    "submitMs": 0.012500000023283064,
+    "cpuMs": 0.1550000000046566
+   },
+   "residualMs": -1.0408340855860843e-17,
+   "crossCheck": 1.1428571425530376,
+   "rasterMs": 24.6895355,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 4753,
+   "overflow": 0,
+   "pages": 257
+  },
+  {
+   "tiles": 4,
+   "verts": 9457,
+   "tris": 18432,
+   "vBytes": 302624,
+   "iBytes": 221184,
+   "genMs": 0.1875,
+   "genMin": 0.1749999999301508,
+   "viewMs": 0,
+   "uploadMs": 0.04999999993015081,
+   "submitMs": 0,
+   "cpuMs": 0.325,
+   "cpuMedIsolated": 0.2999999998137355,
+   "cpuMin": 0.20000000018626451,
+   "inFrame": {
+    "n": 40,
+    "genMs": 0.20749999999534338,
+    "viewMs": 0,
+    "uploadMs": 0.06999999999534338,
+    "submitMs": 0.047500000009313224,
+    "cpuMs": 0.325
+   },
+   "residualMs": 2.0816681711721685e-17,
+   "crossCheck": 1.1066666666418314,
+   "rasterMs": 42.271985,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 9457,
+   "overflow": 0,
+   "pages": 257
+  },
+  {
+   "tiles": 8,
+   "verts": 18865,
+   "tris": 36864,
+   "vBytes": 603680,
+   "iBytes": 442368,
+   "genMs": 0.33750000002328306,
+   "genMin": 0.32499999995343387,
+   "viewMs": 0,
+   "uploadMs": 0.08750000002328306,
+   "submitMs": 0,
+   "cpuMs": 0.6699999999953434,
+   "cpuMedIsolated": 0.5500000002793968,
+   "cpuMin": 0.4499999997206032,
+   "inFrame": {
+    "n": 40,
+    "genMs": 0.4074999999487773,
+    "viewMs": 0.002499999990686774,
+    "uploadMs": 0.1625000000698492,
+    "submitMs": 0.09749999998603016,
+    "cpuMs": 0.6699999999953434
+   },
+   "residualMs": 1.3877787807814457e-17,
+   "crossCheck": 1.207407407172341,
+   "rasterMs": 81.1593015,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 18865,
+   "overflow": 0,
+   "pages": 257
+  },
+  {
+   "tiles": 16,
+   "verts": 37681,
+   "tris": 73728,
+   "vBytes": 1205792,
+   "iBytes": 884736,
+   "genMs": 0.6875,
+   "genMin": 0.6749999999301508,
+   "viewMs": 0,
+   "uploadMs": 0.41249999997671694,
+   "submitMs": 0,
+   "cpuMs": 1.7874999999534338,
+   "cpuMedIsolated": 1.0499999998137355,
+   "cpuMin": 0.8999999999068677,
+   "inFrame": {
+    "n": 40,
+    "genMs": 0.8249999999534339,
+    "viewMs": 0.002500000013969839,
+    "uploadMs": 0.9224999999627471,
+    "submitMs": 0.03750000002328306,
+    "cpuMs": 1.7874999999534338
+   },
+   "residualMs": -1.5265566588595902e-16,
+   "crossCheck": 1.1999999999322675,
+   "rasterMs": 137.410592,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 37681,
+   "overflow": 0,
+   "pages": 257
+  },
+  {
+   "tiles": 24,
+   "verts": 56497,
+   "tris": 110592,
+   "vBytes": 1807904,
+   "iBytes": 1327104,
+   "genMs": 1.125,
+   "genMin": 1.0500000000465661,
+   "viewMs": 0,
+   "uploadMs": 0.6374999999534339,
+   "submitMs": 0,
+   "cpuMs": 4.377499999990687,
+   "cpuMedIsolated": 1.900000000372529,
+   "cpuMin": 1.5,
+   "inFrame": {
+    "n": 40,
+    "genMs": 1.3475000000558794,
+    "viewMs": 0,
+    "uploadMs": 2.929999999888241,
+    "submitMs": 0.10000000004656613,
+    "cpuMs": 4.377499999990687
+   },
+   "residualMs": 2.636779683484747e-16,
+   "crossCheck": 1.1977777778274483,
+   "rasterMs": 198.1749945,
+   "coverage": 0.26015687851971037,
+   "boundVerts": 56497,
+   "overflow": 0,
+   "pages": 257
+  }
+ ],
+ "detach": {
+  "before": {
+   "len": 75656,
+   "bytes": 302624,
+   "first": -1
+  },
+  "stale": {
+   "len": 0,
+   "bytes": 0
+  },
+  "pagesBefore": 257,
+  "pagesAfter": 258,
+  "detachedOnGrow": true,
+  "recovered": true,
+  "alarmRaised": 1
+ },
+ "pageErrors": [],
+ "checks": [
+  {
+   "ok": true,
+   "label": "it actually drew",
+   "detail": "coverage 26% at every size"
+  },
+  {
+   "ok": true,
+   "label": "every build stayed inside its stated bound",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "the arena never overflowed",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "linear memory never grew",
+   "detail": "257 pages throughout"
+  },
+  {
+   "ok": true,
+   "label": "no view detached during the sweep",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "the footgun is REAL and was reproduced",
+   "detail": "growing memory took a live view to 0 bytes"
+  },
+  {
+   "ok": true,
+   "label": "and the bridge caught it",
+   "detail": "alarm raised 1×, view re-derived intact"
+  },
+  {
+   "ok": true,
+   "label": "the four CPU phases account for the CPU frame",
+   "detail": "worst unexplained residual 0.000% — measured in-frame, 40 frames each"
+  },
+  {
+   "ok": true,
+   "label": "in-frame build agrees with the isolated bench",
+   "detail": "ratio 1.00–1.21× (100 µs page clock is the spread)"
+  },
+  {
+   "ok": true,
+   "label": "the raster clock answered",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "raster scales with triangles",
+   "detail": "16 → 198 ms software"
+  },
+  {
+   "ok": true,
+   "label": "no page errors",
+   "detail": ""
+  }
+ ]
+}

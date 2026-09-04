@@ -1,0 +1,492 @@
+{
+ "when": "2026-09-03T22:23:46.722Z",
+ "sprint": 1,
+ "baselineMs": 1.96,
+ "meanBuildMs": 0.1954166666623981,
+ "worstBuildMs": 0.2649999999751647,
+ "speedup": 10.029850746487742,
+ "reach": [
+  {
+   "id": "btn-play",
+   "exists": true,
+   "w": 69,
+   "h": 33,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "btn-a",
+   "exists": true,
+   "w": 44,
+   "h": 33,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "btn-b",
+   "exists": true,
+   "w": 57,
+   "h": 33,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "btn-c",
+   "exists": true,
+   "w": 51,
+   "h": 33,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "rig-time",
+   "exists": true,
+   "w": 301,
+   "h": 22,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "rig-yaw",
+   "exists": true,
+   "w": 301,
+   "h": 22,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  },
+  {
+   "id": "rig-el",
+   "exists": true,
+   "w": 301,
+   "h": 22,
+   "onscreen": true,
+   "hit": true,
+   "coveredBy": null
+  }
+ ],
+ "reachBySize": [
+  {
+   "size": "1220×820",
+   "rows": [
+    {
+     "id": "btn-play",
+     "exists": true,
+     "w": 69,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-a",
+     "exists": true,
+     "w": 44,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-b",
+     "exists": true,
+     "w": 57,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-c",
+     "exists": true,
+     "w": 51,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-time",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-yaw",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-el",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    }
+   ]
+  },
+  {
+   "size": "1040×640",
+   "rows": [
+    {
+     "id": "btn-play",
+     "exists": true,
+     "w": 69,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-a",
+     "exists": true,
+     "w": 44,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-b",
+     "exists": true,
+     "w": 57,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-c",
+     "exists": true,
+     "w": 51,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-time",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-yaw",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-el",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    }
+   ]
+  },
+  {
+   "size": "1360×1000",
+   "rows": [
+    {
+     "id": "btn-play",
+     "exists": true,
+     "w": 69,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-a",
+     "exists": true,
+     "w": 44,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-b",
+     "exists": true,
+     "w": 57,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "btn-c",
+     "exists": true,
+     "w": 51,
+     "h": 33,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-time",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-yaw",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    },
+    {
+     "id": "rig-el",
+     "exists": true,
+     "w": 301,
+     "h": 22,
+     "onscreen": true,
+     "hit": true,
+     "coveredBy": null
+    }
+   ]
+  }
+ ],
+ "drags": [
+  {
+   "id": "rig-time",
+   "before": "41",
+   "after": "207",
+   "moved": true,
+   "readout": "2.07 s"
+  },
+  {
+   "id": "rig-yaw",
+   "before": "0",
+   "after": "106",
+   "moved": true,
+   "readout": "106°"
+  },
+  {
+   "id": "rig-el",
+   "before": "7",
+   "after": "41",
+   "moved": true,
+   "readout": "41°"
+  }
+ ],
+ "shots": [
+  {
+   "name": "three-quarter",
+   "t": 0.35,
+   "coverage": 0.14885912983504798,
+   "file": "rig-three-quarter.png"
+  },
+  {
+   "name": "front",
+   "t": 1.05,
+   "coverage": 0.15213518018276911,
+   "file": "rig-front.png"
+  },
+  {
+   "name": "side",
+   "t": 1.75,
+   "coverage": 0.12374274383585264,
+   "file": "rig-side.png"
+  }
+ ],
+ "perf": {
+  "rows": [
+   {
+    "t": 0,
+    "n": 60,
+    "buildMs": 0.18499999997826913,
+    "viewMs": 0,
+    "uploadMs": 1.1416666666821886,
+    "submitMs": 0.03333333333333333,
+    "cpuMs": 1.3599999999937913,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 26.1102615
+   },
+   {
+    "t": 0.35,
+    "n": 60,
+    "buildMs": 0.1750000000776102,
+    "viewMs": 0.0033333333364377418,
+    "uploadMs": 0.7283333332743496,
+    "submitMs": 0.029999999981373548,
+    "cpuMs": 0.936666666669771,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 21.409799
+   },
+   {
+    "t": 0.7,
+    "n": 60,
+    "buildMs": 0.18166666667287548,
+    "viewMs": 0,
+    "uploadMs": 0.3149999999596427,
+    "submitMs": 0.03833333336127301,
+    "cpuMs": 0.5349999999937912,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 17.7072895
+   },
+   {
+    "t": 1.05,
+    "n": 60,
+    "buildMs": 0.21333333334575097,
+    "viewMs": 0.0033333333519597846,
+    "uploadMs": 0.22166666664804022,
+    "submitMs": 0.11833333331160248,
+    "cpuMs": 0.5566666666573534,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 17.549449
+   },
+   {
+    "t": 1.4,
+    "n": 60,
+    "buildMs": 0.2649999999751647,
+    "viewMs": 0.0016666666759798923,
+    "uploadMs": 0.19499999998758236,
+    "submitMs": 0.07500000003104408,
+    "cpuMs": 0.536666666669771,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 16.988452
+   },
+   {
+    "t": 1.75,
+    "n": 60,
+    "buildMs": 0.18166666662630934,
+    "viewMs": 0.0016666666604578495,
+    "uploadMs": 0.1966666667101284,
+    "submitMs": 0.10666666667287548,
+    "cpuMs": 0.4866666666697711,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 19.077063
+   },
+   {
+    "t": 2.1,
+    "n": 60,
+    "buildMs": 0.17833333330539367,
+    "viewMs": 0.005000000012417635,
+    "uploadMs": 0.33999999999068675,
+    "submitMs": 0.06333333336127302,
+    "cpuMs": 0.5866666666697711,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 17.025094
+   },
+   {
+    "t": 2.45,
+    "n": 60,
+    "buildMs": 0.1833333333178113,
+    "viewMs": 0,
+    "uploadMs": 0.2183333333581686,
+    "submitMs": 0.029999999981373548,
+    "cpuMs": 0.4316666666573534,
+    "verts": 5787,
+    "tris": 10600,
+    "groups": 11,
+    "raster": 22.7278605
+   }
+  ],
+  "buildOnly": 0.16999999999534338,
+  "program": {
+   "bytes": 2320,
+   "maxVerts": 5787,
+   "maxIdx": 31800,
+   "planEnd": 2.5999999046325684
+  },
+  "wasmBytes": 59732,
+  "ceiling": 5787,
+  "overflow": 0,
+  "pages": 257,
+  "pages0": 257,
+  "detaches": 0,
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+ },
+ "checks": [
+  {
+   "ok": true,
+   "label": "the dummy renders at three angles, posed",
+   "detail": "three-quarter 15% · front 15% · side 12%"
+  },
+  {
+   "ok": true,
+   "label": "every control passes elementFromPoint at its centre, at every window size",
+   "detail": "7 controls × 3 sizes"
+  },
+  {
+   "ok": true,
+   "label": "and a real mouse drag moves each slider and its readout",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "geo_build beats the 1.93 ms the plan named",
+   "detail": "worst 0.265 ms"
+  },
+  {
+   "ok": true,
+   "label": "every frame lands exactly on the declared ceiling",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "the arena never overflowed",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "linear memory never grew",
+   "detail": "257 pages"
+  },
+  {
+   "ok": true,
+   "label": "no view detached",
+   "detail": ""
+  },
+  {
+   "ok": true,
+   "label": "no page errors",
+   "detail": ""
+  }
+ ],
+ "pageErrors": []
+}

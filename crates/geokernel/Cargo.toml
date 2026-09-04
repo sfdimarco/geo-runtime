@@ -1,0 +1,9 @@
+[package]
+name = "geokernel"
+version = "0.1.0"
+edition = "2021"
+description = "The .geo runtime kernel — a bounded arena that writes the final GPU layout."
+
+[lib]
+crate-type = ["cdylib", "rlib"]   # rlib so `cargo test` can link it on the host
+path = "src/lib.rs"

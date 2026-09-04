@@ -1,0 +1,62 @@
+{
+ "when": "2026-09-03T22:23:26.815Z",
+ "seed": 20260903,
+ "stats": {
+  "tried": 4000,
+  "accepted": 736,
+  "rejected": {
+   "-2": 123,
+   "-5": 1260,
+   "-4": 1601,
+   "-6": 185,
+   "-3": 55,
+   "-1": 15,
+   "-7": 25
+  },
+  "traps": 0,
+  "overflowed": 0,
+  "exceededCeiling": 0,
+  "grew": 0,
+  "strategies": {
+   "byteflip": {
+    "tried": 445,
+    "accepted": 294
+   },
+   "header": {
+    "tried": 445,
+    "accepted": 15
+   },
+   "counts": {
+    "tried": 445,
+    "accepted": 0
+   },
+   "res": {
+    "tried": 445,
+    "accepted": 38
+   },
+   "offsets": {
+    "tried": 444,
+    "accepted": 47
+   },
+   "ceiling": {
+    "tried": 444,
+    "accepted": 0
+   },
+   "truncate": {
+    "tried": 444,
+    "accepted": 0
+   },
+   "floats": {
+    "tried": 444,
+    "accepted": 342
+   },
+   "noise": {
+    "tried": 444,
+    "accepted": 0
+   }
+  }
+ },
+ "failures": [],
+ "pages0": 257,
+ "pagesEnd": 257
+}

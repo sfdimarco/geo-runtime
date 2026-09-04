@@ -1,0 +1,376 @@
+{
+  "name": "crash-test dummy",
+  "v": 2,
+  "h": 888,
+  "x": 300,
+  "sole": 944,
+  "w": 600,
+  "hpx": 1000,
+  "style": "flat",
+  "note": "Built from the turnaround in D:\\Mook\\Reference and MEASURED off it, not eyeballed: ball y[0.084,0.615] w 0.274 (w/h 1.03, so `ball` is right), depth/width 0.84 from profile-width 197px / front-width 235px, boots y[0.814,0.981] at x +-0.093, arms reaching to r 0.26 between y 0.42 and 0.74. ONE SPHERE IS THE WHOLE BODY - there is no torso. A FIXTURE, not a design. DEPTH/WIDTH SETTLED BY TINKER LOOP at 0.85: measured 0.848 off the turnaround (profile ball width / figure height, divided by front ball width / figure height - the width ratio, because the profile ball's HEIGHT measure is contaminated by the arm merging into the silhouette), and confirmed by eye in a matched-height A/B. 0.63 is falsified - it makes a visible egg.",
+  "feel": {
+    "nerve": 1,
+    "boil": 1,
+    "wiggle": 0.55,
+    "clean": 1,
+    "bounce": 0.3
+  },
+  "pal": {
+    "A": "#D8352B",
+    "B": "#3B5BC4",
+    "C": "#8C8C92",
+    "Y": "#F2CE2E",
+    "INK": "#1A1A24"
+  },
+  "dw": 0.85,
+  "ref": null,
+  "pose": {},
+  "poses": {
+    "rest": {
+      "armL": {
+        "to": {
+          "r": 0.26,
+          "az": -1.55,
+          "y": 0.72
+        },
+        "mid": {
+          "r": 0.255,
+          "az": -1.48,
+          "y": 0.59
+        }
+      },
+      "armR": {
+        "to": {
+          "r": 0.26,
+          "az": 1.55,
+          "y": 0.72
+        },
+        "mid": {
+          "r": 0.255,
+          "az": 1.48,
+          "y": 0.59
+        }
+      },
+      "legL": {
+        "to": {
+          "r": 0.093,
+          "az": -1.5708,
+          "y": 0.825
+        },
+        "mid": {
+          "r": 0.093,
+          "az": -1.5708,
+          "y": 0.71
+        }
+      },
+      "legR": {
+        "to": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.825
+        },
+        "mid": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.71
+        }
+      }
+    },
+    "reach": {
+      "armL": {
+        "to": {
+          "r": 0.3,
+          "az": -0.85,
+          "y": 0.33
+        },
+        "mid": {
+          "r": 0.24,
+          "az": -1.15,
+          "y": 0.43
+        }
+      },
+      "armR": {
+        "to": {
+          "r": 0.3,
+          "az": 0.85,
+          "y": 0.33
+        },
+        "mid": {
+          "r": 0.24,
+          "az": 1.15,
+          "y": 0.43
+        }
+      },
+      "legL": {
+        "to": {
+          "r": 0.093,
+          "az": -1.5708,
+          "y": 0.825
+        },
+        "mid": {
+          "r": 0.093,
+          "az": -1.5708,
+          "y": 0.71
+        }
+      },
+      "legR": {
+        "to": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.825
+        },
+        "mid": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.71
+        }
+      }
+    },
+    "stomp": {
+      "armL": {
+        "to": {
+          "r": 0.28,
+          "az": -1.95,
+          "y": 0.56
+        },
+        "mid": {
+          "r": 0.26,
+          "az": -1.75,
+          "y": 0.47
+        }
+      },
+      "armR": {
+        "to": {
+          "r": 0.27,
+          "az": 1.2,
+          "y": 0.66
+        },
+        "mid": {
+          "r": 0.255,
+          "az": 1.35,
+          "y": 0.56
+        }
+      },
+      "legL": {
+        "to": {
+          "r": 0.093,
+          "az": -1.5708,
+          "y": 0.7
+        },
+        "mid": {
+          "r": 0.13,
+          "az": -1.5708,
+          "y": 0.64
+        }
+      },
+      "legR": {
+        "to": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.845
+        },
+        "mid": {
+          "r": 0.093,
+          "az": 1.5708,
+          "y": 0.72
+        }
+      }
+    }
+  },
+  "plan": [
+    {
+      "pose": "rest",
+      "t": 0.0
+    },
+    {
+      "pose": "reach",
+      "t": 0.7
+    },
+    {
+      "pose": "stomp",
+      "t": 1.4
+    },
+    {
+      "pose": "rest",
+      "t": 2.1
+    }
+  ],
+  "loop": true,
+  "parts": [
+    {
+      "id": "body",
+      "kind": "solid",
+      "y": [
+        0.084,
+        0.615
+      ],
+      "w": 0.274,
+      "shape": "ball",
+      "a": "A",
+      "b": "B",
+      "lw": 13
+    },
+    {
+      "id": "hornL",
+      "kind": "solid",
+      "y": [
+        0.0,
+        0.1
+      ],
+      "x": -0.052,
+      "w": 0.03,
+      "shape": "cone",
+      "k": 0.95,
+      "a": "B",
+      "b": "B",
+      "lw": 9
+    },
+    {
+      "id": "hornR",
+      "kind": "solid",
+      "y": [
+        0.0,
+        0.1
+      ],
+      "x": 0.048,
+      "w": 0.03,
+      "shape": "cone",
+      "k": 0.95,
+      "a": "A",
+      "b": "A",
+      "lw": 9
+    },
+    {
+      "id": "armL",
+      "kind": "limb",
+      "host": "body",
+      "from": {
+        "r": 0.2,
+        "az": -1.3,
+        "y": 0.44
+      },
+      "mid": {
+        "r": 0.255,
+        "az": -1.48,
+        "y": 0.59
+      },
+      "to": {
+        "r": 0.26,
+        "az": -1.55,
+        "y": 0.72
+      },
+      "w": 0.022,
+      "hand": "mitt",
+      "handScale": 1.25,
+      "a": "B",
+      "b": "B",
+      "lw": 11
+    },
+    {
+      "id": "armR",
+      "kind": "limb",
+      "host": "body",
+      "from": {
+        "r": 0.2,
+        "az": 1.3,
+        "y": 0.44
+      },
+      "mid": {
+        "r": 0.255,
+        "az": 1.48,
+        "y": 0.59
+      },
+      "to": {
+        "r": 0.26,
+        "az": 1.55,
+        "y": 0.72
+      },
+      "w": 0.022,
+      "hand": "mitt",
+      "handScale": 1.25,
+      "a": "A",
+      "b": "A",
+      "lw": 11
+    },
+    {
+      "id": "legL",
+      "kind": "limb",
+      "host": "body",
+      "from": {
+        "r": 0.093,
+        "az": -1.5708,
+        "y": 0.6
+      },
+      "mid": {
+        "r": 0.093,
+        "az": -1.5708,
+        "y": 0.71
+      },
+      "to": {
+        "r": 0.093,
+        "az": -1.5708,
+        "y": 0.825
+      },
+      "w": 0.02,
+      "taper": 0.0,
+      "a": "C",
+      "b": "C",
+      "lw": 11
+    },
+    {
+      "id": "legR",
+      "kind": "limb",
+      "host": "body",
+      "from": {
+        "r": 0.093,
+        "az": 1.5708,
+        "y": 0.6
+      },
+      "mid": {
+        "r": 0.093,
+        "az": 1.5708,
+        "y": 0.71
+      },
+      "to": {
+        "r": 0.093,
+        "az": 1.5708,
+        "y": 0.825
+      },
+      "w": 0.02,
+      "taper": 0.0,
+      "a": "C",
+      "b": "C",
+      "lw": 11
+    },
+    {
+      "id": "bootL",
+      "kind": "solid",
+      "y": [
+        0.814,
+        0.981
+      ],
+      "x": -0.093,
+      "w": 0.06,
+      "shape": "slab",
+      "k": 0.35,
+      "a": "Y",
+      "b": "Y",
+      "lw": 11
+    },
+    {
+      "id": "bootR",
+      "kind": "solid",
+      "y": [
+        0.814,
+        0.981
+      ],
+      "x": 0.093,
+      "w": 0.06,
+      "shape": "slab",
+      "k": 0.35,
+      "a": "Y",
+      "b": "Y",
+      "lw": 11
+    }
+  ]
+}
