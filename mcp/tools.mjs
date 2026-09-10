@@ -278,7 +278,8 @@ export async function geo_inspect(args = {}) {
 //   return_image:false to get the path and the frame table alone.
 export async function geo_render(args = {}) {
   const { render } = await import('../tools/render.mjs');
-  const out = abs(args.out_path ?? 'bench/results/render.png');
+  const gif = !!args.gif;
+  const out = abs(args.out_path ?? (gif ? 'bench/results/render.gif' : 'bench/results/render.png'));
 
   let from, opts;
   if (args.geo_path) { opts = { geoPath: abs(args.geo_path) }; from = abs(args.geo_path); }
@@ -287,7 +288,8 @@ export async function geo_render(args = {}) {
   let r;
   try {
     r = await render({
-      ...opts, out,
+      ...opts, out, gif,
+      fps: args.fps ?? 10,
       times: args.times ?? null,
       window: args.window ?? null,
       cols: args.cols ?? 4,
@@ -307,20 +309,28 @@ export async function geo_render(args = {}) {
 
   const png = fs.readFileSync(r.out);
   const cap = args.max_image_bytes ?? 1_500_000;
-  const inline = args.return_image !== false && png.length <= cap;
+  // ⚠ AN ANIMATION DOES NOT INLINE BY DEFAULT. A model sees one still frame of
+  //   it and pays for the whole file, which is the worst of both — the GIF is
+  //   for a PERSON to open. Pass return_image:true if you really want it.
+  const inline = (gif ? args.return_image === true : args.return_image !== false)
+                 && png.length <= cap;
 
   return {
     ok: true,
     source: from,
     out: r.out,
+    format: r.format,
     size: `${r.width}x${r.height}`,
+    fps: r.fps,
+    palette_exact: r.palette_exact,
     bytes: png.length,
     ceiling: r.ceiling,
     window: r.window.map((x) => +x.toFixed(4)),
     frames: r.frames,
     all_within_ceiling: r.frames.every((f) => f.within_ceiling && f.overflow === 0),
-    image: inline ? { mimeType: 'image/png', base64: png.toString('base64') } : undefined,
+    image: inline ? { mimeType: gif ? 'image/gif' : 'image/png', base64: png.toString('base64') } : undefined,
     image_note: inline ? undefined
+      : gif ? `an animation is not inlined by default — it is on disk at the path above, for a person to open`
       : `image not inlined (${png.length} B > ${cap} B cap, or return_image:false) — it is on disk at the path above`,
     note: 'A CONTACT SHEET FINDS DEAD FRAMES AND WILL LIE TO YOU ABOUT SMALL ONES. ' +
           'Every frame is listed above with its vertex count; read the numbers beside the picture. ' +

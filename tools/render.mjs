@@ -11,6 +11,11 @@
 //   node tools/render.mjs                        # the reference character, 8 frames
 //   node tools/render.mjs my.geocast --times 0,0.7,1.4 --out shot.png
 //   node tools/render.mjs my.geocast --window -0.26,-0.02,0.26,0.44   # crop, mesh coords
+//   node tools/render.mjs my.geocast --gif --fps 10 --out walk.gif    # MOTION
+//
+// ⭐ --gif draws ONE LOOP OF THE PLAN as an animated GIF instead of a contact
+//   sheet. A sheet shows you eight moments; it does not show you a foot leaving
+//   a leg. Same rule as everything else here: no dependencies — see tools/gif.mjs.
 //
 // ⚠ MESH Y IS INVERTED RELATIVE TO THE CAST: y_mesh = 1 - y_cast. --window takes
 //   MESH coordinates. Getting this backwards renders the head when you asked for feet.
@@ -18,6 +23,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { loadCast, loadKernel, ROOT } from '../bench/kernel.mjs';
+import { encodeGIF } from './gif.mjs';
 
 const LIGHT = (() => { const v = [-0.42, 0.66, 0.62], n = Math.hypot(...v); return v.map(x => x / n); })();
 
@@ -47,6 +53,7 @@ export async function render({
   doc, castPath, geoPath, res,
   times = null, out = 'render.png',
   cell = [300, 400], cols = 4, window: win = null, bg = [22, 25, 30], plan_bar = true,
+  gif = false, fps = 10,
 } = {}) {
   let K, header;
   if (geoPath) { K = await loadKernel(); header = K.load(new Uint8Array(fs.readFileSync(geoPath))); }
@@ -55,7 +62,12 @@ export async function render({
     ({ K, header } = await loadCast(d, { res }));
   }
   const planEnd = header.planEnd ?? 1;
-  const T = times ?? Array.from({ length: 8 }, (_, i) => (i / 7) * planEnd);
+  // ⚠ a GIF LOOPS, so the last frame must not repeat the first: the sheet
+  //   samples i/(n-1) INCLUSIVE of the end, an animation samples i/n EXCLUSIVE.
+  //   Getting this wrong shows up as a one-frame stutter at the seam.
+  const N = gif ? Math.max(2, Math.round(planEnd * fps)) : 8;
+  const T = times ?? Array.from({ length: N },
+    (_, i) => (gif ? i / N : i / (N - 1)) * planEnd);
   const [CW, CH] = cell;
 
   let X0, Y0, X1, Y1;
@@ -70,15 +82,23 @@ export async function render({
   }
   const sxy = (x, y) => [(x - X0) / (X1 - X0) * CW, CH * (1 - (y - Y0) / (Y1 - Y0))];
 
-  const ROWS = Math.ceil(T.length / cols), W = Math.min(cols, T.length) * CW, H = ROWS * CH;
-  const img = new Uint8Array(W * H * 3);
-  for (let i = 0; i < W * H; i++) { img[i*3] = bg[0]; img[i*3+1] = bg[1]; img[i*3+2] = bg[2]; }
+  // a sheet writes every frame into ONE image at an offset; an animation gives
+  // each frame its own. One rasteriser, two targets.
+  const canvas = (w, h) => { const a = new Uint8Array(w * h * 3);
+    for (let i = 0; i < w * h; i++) { a[i*3] = bg[0]; a[i*3+1] = bg[1]; a[i*3+2] = bg[2]; }
+    return a; };
+  const ROWS = gif ? 1 : Math.ceil(T.length / cols);
+  const W = gif ? CW : Math.min(cols, T.length) * CW, H = gif ? CH : ROWS * CH;
+  const sheet = gif ? null : canvas(W, H);
+  const cels = [];
   const frames = [];
 
   for (let f = 0; f < T.length; f++) {
     const t = T[f], b = K.build(t), m = K.meshView(), ix = K.idxView();
     frames.push({ t, verts: b.verts, idx: b.idx, within_ceiling: b.verts <= header.maxVerts, overflow: b.overflow });
-    const ox = (f % cols) * CW, oy = Math.floor(f / cols) * CH;
+    const img = gif ? canvas(CW, CH) : sheet;
+    const DW = gif ? CW : W;
+    const ox = gif ? 0 : (f % cols) * CW, oy = gif ? 0 : Math.floor(f / cols) * CH;
     const zb = new Float32Array(CW * CH).fill(-1e30);
     for (let i = 0; i + 2 < ix.length; i += 3) {
       const T3 = [ix[i], ix[i+1], ix[i+2]];
@@ -99,22 +119,27 @@ export async function render({
         if (w0 < 0 || w1 < 0 || w0 + w1 > 1) continue;
         const z = p[0][2] + w1*(p[1][2]-p[0][2]) + w0*(p[2][2]-p[0][2]);
         const zi = y*CW + x; if (z <= zb[zi]) continue; zb[zi] = z;
-        const q = ((oy+y)*W + ox+x)*3; img[q] = s; img[q+1] = (s*0.99)|0; img[q+2] = (s*0.95)|0;
+        const q = ((oy+y)*DW + ox+x)*3; img[q] = s; img[q+1] = (s*0.99)|0; img[q+2] = (s*0.95)|0;
       }
     }
     if (plan_bar && planEnd > 0) {                       // where this frame sits in the plan
       const bw = CW - 48, fill = Math.round(bw * (t / planEnd));
       for (let x = 0; x < bw; x++) for (let y = 0; y < 5; y++) {
-        const q = ((oy + CH - 18 + y)*W + ox + 24 + x)*3; const on = x < fill;
+        const q = ((oy + CH - 18 + y)*DW + ox + 24 + x)*3; const on = x < fill;
         img[q] = on?230:58; img[q+1] = on?80:62; img[q+2] = on?70:70;
       }
     }
-    for (let y = 0; y < CH; y++) { const q = ((oy+y)*W + ox)*3; img[q]=44; img[q+1]=48; img[q+2]=56; }
+    for (let y = 0; y < CH; y++) { const q = ((oy+y)*DW + ox)*3; img[q]=44; img[q+1]=48; img[q+2]=56; }
+    if (gif) cels.push(img);
   }
-  const png = encodePNG(img, W, H);
+  const delay = Math.max(2, Math.round(100 / fps));
+  const buf = gif ? encodeGIF(cels, CW, CH, { delay, loop: 0 }) : encodePNG(sheet, W, H);
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
-  fs.writeFileSync(out, png);
-  return { out: path.resolve(out), width: W, height: H, bytes: png.length,
+  fs.writeFileSync(out, buf);
+  return { out: path.resolve(out), format: gif ? 'gif' : 'png',
+           width: W, height: H, bytes: buf.length,
+           fps: gif ? fps : undefined, delay_cs: gif ? delay : undefined,
+           palette_exact: gif ? !!buf.paletteExact : undefined,
            ceiling: header.maxVerts, window: [X0, Y0, X1, Y1], frames };
 }
 
@@ -122,14 +147,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const a = process.argv.slice(2); const flag = (n) => { const i = a.indexOf('--'+n); return i < 0 ? null : a[i+1]; };
   const castPath = a[0] && !a[0].startsWith('--') ? a[0] : null;
   const nums = (s) => s.split(',').map(Number);
+  const wantGif = a.includes('--gif');
   const r = await render({
-    castPath, out: flag('out') ?? 'render.png',
+    castPath, gif: wantGif, fps: flag('fps') ? +flag('fps') : 10,
+    out: flag('out') ?? (wantGif ? 'render.gif' : 'render.png'),
     times: flag('times') ? nums(flag('times')) : null,
     window: flag('window') ? nums(flag('window')) : null,
     cols: flag('cols') ? +flag('cols') : 4,
     cell: flag('cell') ? nums(flag('cell')) : [300, 400],
   });
-  console.log(`${r.out}  ${r.width}x${r.height}  ${(r.bytes/1024).toFixed(0)} KB`);
+  console.log(`${r.out}  ${r.width}x${r.height}  ${(r.bytes/1024).toFixed(0)} KB` +
+              (r.format === 'gif' ? `  ${r.frames.length} frames @ ${r.fps} fps` +
+               (r.palette_exact ? '  palette lossless' : '  palette quantised') : ''));
   console.log(`ceiling ${r.ceiling} verts · frames ` + r.frames.map(f => f.t.toFixed(2)).join(' '));
   const bad = r.frames.filter(f => !f.within_ceiling || f.overflow);
   console.log(bad.length ? `!! ${bad.length} frame(s) breached the ceiling` : 'every frame inside the ceiling, 0 overflow');

@@ -51,6 +51,7 @@ Gates individually:
     node bench/run.mjs       # sprint 0's pipe sweep and chart
     node bench/joint.mjs     # DOES THE FOOT STAY ON THE LEG? frame by frame
     node tools/render.mjs    # SEE it — a software render, no browser, no deps
+    node tools/render.mjs bench/reference/v36-test-character-boots.geocast --gif --fps 10
 
 Open `web/rig.html` for the rig, `web/index.html` for the Sprint 0 instrument.
 
@@ -140,7 +141,7 @@ harness is never told what it was built from, it asks.
 | `geo_validate` | the bound, at hostile times including outside the plan |
 | `geo_bench` | `geo_build` timed, **with its noise floor printed beside it** |
 | `geo_inspect` | a header, read without executing anything |
-| `geo_render` | ⭐ **the picture** — a z-buffer software rasteriser in pure Node |
+| `geo_render` | ⭐ **the picture, and the MOTION** — a z-buffer software rasteriser and a GIF encoder, both in pure Node |
 
 ⚠⚠ **MCP does not make tokens cheaper.** An argument is a token wherever it
 arrives. What is cheap is the *shape*: a statement in, a **summary** out. Every
@@ -152,6 +153,14 @@ returns a rendered picture, never geometry.
 "the legs never move"; a windowed render of the same program showed a leg
 lifting and its boot staying behind. **Print the number beside the picture** —
 `geo_render` lists every frame's vertex count for exactly that reason.
+
+⭐⭐ **And a sheet still only shows you moments.** `gif: true` draws ONE LOOP of
+the plan — frame count from `fps × plan_end`, sampled *exclusive* of the end so
+the seam does not stutter. `tools/gif.mjs` is GIF89a with LZW and a palette
+built from the frames themselves, in **~170 lines and no dependencies**, same
+rule as the PNG encoder beside it: *if the proof needs a library nobody has, it
+is not a proof.* An animation is written to disk and **not** inlined — a model
+sees one still of it and pays for the whole file; the GIF is for a person.
 
 ## Documentation
 

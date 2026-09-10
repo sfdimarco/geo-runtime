@@ -7,6 +7,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -74,6 +75,20 @@ const im = await client.callTool({ name: 'geo_render', arguments: {
 check('an image block came back, not a base64 blob in the text',
   im.content?.some((c) => c.type === 'image' && c.mimeType === 'image/png'),
   im.content?.map((c) => c.type).join(','));
+
+console.log('\ngeo_render — MOTION, one loop of the plan');
+const mv = j(await client.callTool({ name: 'geo_render', arguments: {
+  cast_path: 'bench/reference/v36-test-character-boots.geocast',
+  gif: true, fps: 4, cell: [90, 120], out_path: 'bench/results/smoke-render.gif' } }));
+check(`${mv.format} ${mv.size} · ${mv.frames?.length} frames @ ${mv.fps} fps · palette lossless: ${mv.palette_exact}`,
+  mv.ok && mv.format === 'gif' && mv.frames.length === 10 && mv.all_within_ceiling,
+  JSON.stringify(mv).slice(0, 200));
+check('an animation is NOT inlined — it is for a person to open',
+  mv.image === undefined && /not inlined/.test(mv.image_note ?? ''), mv.image_note);
+check('and the bytes really are a GIF that loops',
+  (() => { const b = fs.readFileSync('bench/results/smoke-render.gif');
+    return b.toString('ascii', 0, 6) === 'GIF89a' && b.includes(Buffer.from('NETSCAPE2.0'))
+        && b[b.length - 1] === 0x3B; })(), 'header/loop-block/trailer');
 
 console.log('\n.geo v0.1 — a hand that carries a profile');
 const hp = j(await client.callTool({ name: 'geo_compile', arguments: {

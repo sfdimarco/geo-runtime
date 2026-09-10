@@ -143,12 +143,15 @@ server.registerTool('geo_inspect', {
 }, wrap(T.geo_inspect));
 
 server.registerTool('geo_render', {
-  title: 'SEE the program — a software render, no browser',
+  title: 'SEE the program — a software render or an animation, no browser',
   description:
     'Rasterise a .geo program to a PNG contact sheet and RETURN THE PICTURE. Every other tool ' +
     'here answers in numbers; this is the one that can show you that a foot detached, that a ' +
     'frame is dead, or that a pose reads. Pure Node — a z-buffer scanline rasteriser and a ' +
     'hand-rolled PNG encoder, no browser, no GPU, no dependencies. ' +
+    'Pass gif:true for ONE LOOP OF THE PLAN as an animated GIF instead of a contact sheet — ' +
+    'a sheet shows you eight moments, an animation shows you a foot leaving a leg. ' +
+    'An animation is written to disk and NOT inlined: it is for a person to open. ' +
     'Each frame is listed with its vertex count and whether it stayed inside the ceiling, ' +
     'BECAUSE A CONTACT SHEET WILL LIE TO YOU ABOUT SMALL MOTION — read the numbers beside the ' +
     'picture. To look closely, pass a window in MESH coordinates: y_mesh = 1 - y_cast, so the ' +
@@ -160,7 +163,10 @@ server.registerTool('geo_render', {
     times: z.array(z.number()).max(32).optional().describe('Plan times to draw. Default: 8 evenly across the plan.'),
     window: z.array(z.number()).length(4).optional()
       .describe('Crop box [x0,y0,x1,y1] in MESH coordinates. ⚠ y_mesh = 1 - y_cast — the feet are LOW y.'),
-    cols: z.number().int().min(1).max(8).optional().describe('Frames per row. Default 4.'),
+    gif: z.boolean().optional()
+      .describe('Draw ONE LOOP of the plan as an animated GIF instead of a contact sheet. Frame count comes from fps x plan_end, sampled EXCLUSIVE of the end so the loop has no stutter at the seam.'),
+    fps: z.number().int().min(1).max(50).optional().describe('Frames per second for gif:true. Default 10.'),
+    cols: z.number().int().min(1).max(8).optional().describe('Frames per row of a contact sheet. Ignored for gif. Default 4.'),
     cell: z.array(z.number().int()).length(2).optional().describe('[width,height] of one frame in pixels. Default [300,400].'),
     out_path: z.string().optional().describe('Where to write the PNG. Default bench/results/render.png.'),
     return_image: z.boolean().optional().describe('Inline the PNG in the reply. Default true.'),
