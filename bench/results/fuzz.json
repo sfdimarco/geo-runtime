@@ -1,17 +1,17 @@
 {
- "when": "2026-09-10T16:51:25.120Z",
+ "when": "2026-09-10T19:16:48.843Z",
  "seed": 20260903,
  "stats": {
   "tried": 4000,
-  "accepted": 736,
+  "accepted": 732,
   "rejected": {
    "-2": 123,
    "-5": 1260,
    "-4": 1601,
-   "-6": 185,
+   "-6": 193,
    "-3": 55,
    "-1": 15,
-   "-7": 25
+   "-7": 21
   },
   "traps": 0,
   "overflowed": 0,
@@ -20,7 +20,7 @@
   "strategies": {
    "byteflip": {
     "tried": 445,
-    "accepted": 294
+    "accepted": 290
    },
    "header": {
     "tried": 445,

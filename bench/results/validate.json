@@ -1,5 +1,5 @@
 {
- "when": "2026-09-03T22:23:24.969Z",
+ "when": "2026-09-10T19:16:47.266Z",
  "compile": {
   "bytes": 2320,
   "parts": 9,
@@ -8,6 +8,7 @@
   "limbs": 4,
   "hands": 2,
   "leaves": 0,
+  "profiledHands": 0,
   "poses": 3,
   "beats": 4,
   "maxVerts": 5787,
@@ -238,5 +239,5 @@
  },
  "planEnd": 2.5999999046325684,
  "pages": 257,
- "wasmBytes": 59732
+ "wasmBytes": 64031
 }

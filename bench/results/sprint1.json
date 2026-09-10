@@ -1,15 +1,15 @@
 {
- "when": "2026-09-03T22:23:46.722Z",
+ "when": "2026-09-10T19:16:59.803Z",
  "sprint": 1,
  "baselineMs": 1.96,
- "meanBuildMs": 0.1954166666623981,
- "worstBuildMs": 0.2649999999751647,
- "speedup": 10.029850746487742,
+ "meanBuildMs": 0.22458333334264657,
+ "worstBuildMs": 0.2533333333519598,
+ "speedup": 8.727272726910815,
  "reach": [
   {
    "id": "btn-play",
    "exists": true,
-   "w": 69,
+   "w": 71,
    "h": 33,
    "onscreen": true,
    "hit": true,
@@ -27,7 +27,7 @@
   {
    "id": "btn-b",
    "exists": true,
-   "w": 57,
+   "w": 54,
    "h": 33,
    "onscreen": true,
    "hit": true,
@@ -36,7 +36,7 @@
   {
    "id": "btn-c",
    "exists": true,
-   "w": 51,
+   "w": 48,
    "h": 33,
    "onscreen": true,
    "hit": true,
@@ -77,7 +77,7 @@
     {
      "id": "btn-play",
      "exists": true,
-     "w": 69,
+     "w": 71,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -95,7 +95,7 @@
     {
      "id": "btn-b",
      "exists": true,
-     "w": 57,
+     "w": 54,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -104,7 +104,7 @@
     {
      "id": "btn-c",
      "exists": true,
-     "w": 51,
+     "w": 48,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -145,7 +145,7 @@
     {
      "id": "btn-play",
      "exists": true,
-     "w": 69,
+     "w": 71,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -163,7 +163,7 @@
     {
      "id": "btn-b",
      "exists": true,
-     "w": 57,
+     "w": 54,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -172,7 +172,7 @@
     {
      "id": "btn-c",
      "exists": true,
-     "w": 51,
+     "w": 48,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -213,7 +213,7 @@
     {
      "id": "btn-play",
      "exists": true,
-     "w": 69,
+     "w": 71,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -231,7 +231,7 @@
     {
      "id": "btn-b",
      "exists": true,
-     "w": 57,
+     "w": 54,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -240,7 +240,7 @@
     {
      "id": "btn-c",
      "exists": true,
-     "w": 51,
+     "w": 48,
      "h": 33,
      "onscreen": true,
      "hit": true,
@@ -279,7 +279,7 @@
  "drags": [
   {
    "id": "rig-time",
-   "before": "41",
+   "before": "82",
    "after": "207",
    "moved": true,
    "readout": "2.07 s"
@@ -324,116 +324,116 @@
    {
     "t": 0,
     "n": 60,
-    "buildMs": 0.18499999997826913,
+    "buildMs": 0.21833333329608043,
     "viewMs": 0,
-    "uploadMs": 1.1416666666821886,
-    "submitMs": 0.03333333333333333,
-    "cpuMs": 1.3599999999937913,
+    "uploadMs": 0.033333333348855375,
+    "submitMs": 0.011666666685293118,
+    "cpuMs": 0.2633333333302289,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 26.1102615
+    "raster": 7.80585
    },
    {
     "t": 0.35,
     "n": 60,
-    "buildMs": 0.1750000000776102,
-    "viewMs": 0.0033333333364377418,
-    "uploadMs": 0.7283333332743496,
-    "submitMs": 0.029999999981373548,
-    "cpuMs": 0.936666666669771,
+    "buildMs": 0.21000000000931324,
+    "viewMs": 0,
+    "uploadMs": 0.03333333331781129,
+    "submitMs": 0.008333333333333333,
+    "cpuMs": 0.25166666666045784,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 21.409799
+    "raster": 7.5402
    },
    {
     "t": 0.7,
     "n": 60,
-    "buildMs": 0.18166666667287548,
+    "buildMs": 0.2250000000310441,
     "viewMs": 0,
-    "uploadMs": 0.3149999999596427,
-    "submitMs": 0.03833333336127301,
-    "cpuMs": 0.5349999999937912,
+    "uploadMs": 0.014999999990686774,
+    "submitMs": 0.011666666654249033,
+    "cpuMs": 0.25166666667597987,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 17.7072895
+    "raster": 10.6096
    },
    {
     "t": 1.05,
     "n": 60,
-    "buildMs": 0.21333333334575097,
-    "viewMs": 0.0033333333519597846,
-    "uploadMs": 0.22166666664804022,
-    "submitMs": 0.11833333331160248,
-    "cpuMs": 0.5566666666573534,
+    "buildMs": 0.2533333333519598,
+    "viewMs": 0.008333333333333333,
+    "uploadMs": 0.06333333333022892,
+    "submitMs": 0.019999999972060322,
+    "cpuMs": 0.34499999998758235,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 17.549449
+    "raster": 8.3954
    },
    {
     "t": 1.4,
     "n": 60,
-    "buildMs": 0.2649999999751647,
-    "viewMs": 0.0016666666759798923,
-    "uploadMs": 0.19499999998758236,
-    "submitMs": 0.07500000003104408,
-    "cpuMs": 0.536666666669771,
+    "buildMs": 0.2150000000993411,
+    "viewMs": 0,
+    "uploadMs": 0.029999999965851506,
+    "submitMs": 0.019999999941016238,
+    "cpuMs": 0.2650000000062088,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 16.988452
+    "raster": 7.45725
    },
    {
     "t": 1.75,
     "n": 60,
-    "buildMs": 0.18166666662630934,
-    "viewMs": 0.0016666666604578495,
-    "uploadMs": 0.1966666667101284,
-    "submitMs": 0.10666666667287548,
-    "cpuMs": 0.4866666666697711,
+    "buildMs": 0.22666666664493582,
+    "viewMs": 0,
+    "uploadMs": 0.030000000012417635,
+    "submitMs": 0.010000000009313226,
+    "cpuMs": 0.26666666666666666,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 19.077063
+    "raster": 8.8759
    },
    {
     "t": 2.1,
     "n": 60,
-    "buildMs": 0.17833333330539367,
-    "viewMs": 0.005000000012417635,
-    "uploadMs": 0.33999999999068675,
-    "submitMs": 0.06333333336127302,
-    "cpuMs": 0.5866666666697711,
+    "buildMs": 0.2166666666821887,
+    "viewMs": 0,
+    "uploadMs": 0.023333333324020107,
+    "submitMs": 0.011666666654249033,
+    "cpuMs": 0.25166666666045784,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 17.025094
+    "raster": 8.0359
    },
    {
     "t": 2.45,
     "n": 60,
-    "buildMs": 0.1833333333178113,
+    "buildMs": 0.23166666662630936,
     "viewMs": 0,
-    "uploadMs": 0.2183333333581686,
-    "submitMs": 0.029999999981373548,
-    "cpuMs": 0.4316666666573534,
+    "uploadMs": 0.015000000037252903,
+    "submitMs": 0.004999999996895591,
+    "cpuMs": 0.25166666666045784,
     "verts": 5787,
     "tris": 10600,
     "groups": 11,
-    "raster": 22.7278605
+    "raster": 8.15905
    }
   ],
-  "buildOnly": 0.16999999999534338,
+  "buildOnly": 0.22250000000931322,
   "program": {
    "bytes": 2320,
    "maxVerts": 5787,
    "maxIdx": 31800,
    "planEnd": 2.5999999046325684
   },
-  "wasmBytes": 59732,
+  "wasmBytes": 64031,
   "ceiling": 5787,
   "overflow": 0,
   "pages": 257,
@@ -460,7 +460,7 @@
   {
    "ok": true,
    "label": "geo_build beats the 1.93 ms the plan named",
-   "detail": "worst 0.265 ms"
+   "detail": "worst 0.253 ms"
   },
   {
    "ok": true,

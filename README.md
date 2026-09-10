@@ -7,6 +7,12 @@ that executes. Rust/WASM hosts it, WebGL2 displays it.
 **Sprint 1** · the slice — the dummy renders from the `.geo` binary, posed,
 at three angles, **10.2× faster than GeoV** for the same 5,787 vertices.
 
+**v0.1** · a `hand` may carry a **profile**, so a foot that moves can be the
+slab boot it looks like. Additive — no header change, no part-record change, and
+every v0 program still compiles to the same bytes. See
+[the spec](docs/GEO-V0-SPEC.md#v01--a-hand-may-carry-a-profile) and
+`node bench/joint.mjs`, which measures the fix rather than describing it.
+
 ## Build and run
 
 One command, and a board at the end:
@@ -43,6 +49,8 @@ Gates individually:
     node bench/fuzz.mjs      # the bound, tested against 4,000 mutated programs
     node bench/sprint1.mjs   # the rig: reachability, three angles, the number
     node bench/run.mjs       # sprint 0's pipe sweep and chart
+    node bench/joint.mjs     # DOES THE FOOT STAY ON THE LEG? frame by frame
+    node tools/render.mjs    # SEE it — a software render, no browser, no deps
 
 Open `web/rig.html` for the rig, `web/index.html` for the Sprint 0 instrument.
 
@@ -117,6 +125,33 @@ missing phase.
 
 `hello::RES` is that constant. `run.mjs` reads it **out of the wasm** — the
 harness is never told what it was built from, it asks.
+
+## The MCP server — six tools, no browser
+
+    node mcp/install.mjs     # register with Claude Desktop
+    node mcp/smoke.mjs       # spawn it and call every tool over real stdio
+
+`geokernel.wasm` imports nothing, so the server runs anywhere Node runs.
+
+| tool | answers |
+|---|---|
+| `geo_compile` | a `.geocast` → a `.geo` program: size, counts, and the ceiling |
+| `geo_build` | build at one or more plan times — verts, ceiling, overflow, memory growth |
+| `geo_validate` | the bound, at hostile times including outside the plan |
+| `geo_bench` | `geo_build` timed, **with its noise floor printed beside it** |
+| `geo_inspect` | a header, read without executing anything |
+| `geo_render` | ⭐ **the picture** — a z-buffer software rasteriser in pure Node |
+
+⚠⚠ **MCP does not make tokens cheaper.** An argument is a token wherever it
+arrives. What is cheap is the *shape*: a statement in, a **summary** out. Every
+tool refuses to return a mesh buffer — `geo_build` produces 46,296 floats and
+reports eight numbers. `geo_render` is the one deliberate exception, and it
+returns a rendered picture, never geometry.
+
+⭐ **The five that answer in numbers could not SEE.** A wide contact sheet said
+"the legs never move"; a windowed render of the same program showed a leg
+lifting and its boot staying behind. **Print the number beside the picture** —
+`geo_render` lists every frame's vertex count for exactly that reason.
 
 ## Documentation
 

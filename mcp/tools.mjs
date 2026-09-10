@@ -91,6 +91,8 @@ export async function geo_compile(args = {}) {
     source: from,
     bytes: info.bytes,
     parts: { total: info.parts, solid: info.solids, limb: info.limbs, hand: info.hands, leaf: info.leaves,
+             // ⭐ v0.1 — how many of those hands carry a PROFILE rather than the mitt
+             hand_profiled: info.profiledHands,
              drawing_parts_skipped: info.skippedDrawingParts },
     poses: info.poses,
     beats: info.beats,
@@ -260,5 +262,68 @@ export async function geo_inspect(args = {}) {
     },
     length_matches_header: v.getUint32(60, true) === bin.length,
     note: 'Header only — nothing executed. Use geo_validate to test whether the VM accepts it.',
+  };
+}
+
+// ═══ geo_render ════════════════════════════════════════════════════════════
+// ⭐ THE SIXTH TOOL, AND THE ONLY ONE THAT DOES NOT RETURN A NUMBER.
+//   compile / build / validate / bench / inspect all answer in numbers, and
+//   NOTHING COULD SEE. A wide contact sheet told us "the legs never move"; a
+//   windowed render of the same program showed a leg lifting and its boot
+//   staying behind. The picture is not decoration — it is the check the
+//   numbers cannot make.
+//
+// ⚠ This is the one place the summary rule bends, and deliberately: an image
+//   costs context. It is a RENDERED PICTURE, not a mesh buffer — pass
+//   return_image:false to get the path and the frame table alone.
+export async function geo_render(args = {}) {
+  const { render } = await import('../tools/render.mjs');
+  const out = abs(args.out_path ?? 'bench/results/render.png');
+
+  let from, opts;
+  if (args.geo_path) { opts = { geoPath: abs(args.geo_path) }; from = abs(args.geo_path); }
+  else { const c = readCast(args); opts = { doc: c.doc, res: args.res }; from = c.from; }
+
+  let r;
+  try {
+    r = await render({
+      ...opts, out,
+      times: args.times ?? null,
+      window: args.window ?? null,
+      cols: args.cols ?? 4,
+      cell: args.cell ?? [300, 400],
+    });
+  } catch (e) {
+    if (e instanceof Refused) {
+      return { ok: false, refused: true, source: from, reason: e.message,
+        note: 'The compiler refuses what the ISA cannot express and names the key.' };
+    }
+    if (e instanceof Rejected) {
+      return { ok: false, rejected: true, source: from, code: e.rc,
+        meaning: REJECTION[String(e.rc)] ?? 'unknown rejection code', reason: e.message };
+    }
+    throw e;
+  }
+
+  const png = fs.readFileSync(r.out);
+  const cap = args.max_image_bytes ?? 1_500_000;
+  const inline = args.return_image !== false && png.length <= cap;
+
+  return {
+    ok: true,
+    source: from,
+    out: r.out,
+    size: `${r.width}x${r.height}`,
+    bytes: png.length,
+    ceiling: r.ceiling,
+    window: r.window.map((x) => +x.toFixed(4)),
+    frames: r.frames,
+    all_within_ceiling: r.frames.every((f) => f.within_ceiling && f.overflow === 0),
+    image: inline ? { mimeType: 'image/png', base64: png.toString('base64') } : undefined,
+    image_note: inline ? undefined
+      : `image not inlined (${png.length} B > ${cap} B cap, or return_image:false) — it is on disk at the path above`,
+    note: 'A CONTACT SHEET FINDS DEAD FRAMES AND WILL LIE TO YOU ABOUT SMALL ONES. ' +
+          'Every frame is listed above with its vertex count; read the numbers beside the picture. ' +
+          'To look closely at one region, pass a window — in MESH coordinates, where y_mesh = 1 - y_cast.',
   };
 }

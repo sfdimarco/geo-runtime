@@ -30,8 +30,9 @@ const server = new McpServer(
       'The .geo runtime: a bounded VM for animated form. A .geocast document ' +
       'compiles to a small .geo program whose memory ceiling is known before a ' +
       'single instruction runs. Compile with geo_compile, prove the bound with ' +
-      'geo_validate, time it with geo_bench. Tools return SUMMARIES, never mesh ' +
-      'buffers — ask for sample_verts if you need actual numbers. Refusal is a ' +
+      'geo_validate, time it with geo_bench, and SEE it with geo_render. Tools return ' +
+      'SUMMARIES, never mesh buffers — ask for sample_verts if you need actual numbers, ' +
+      'and geo_render if you need to look. Refusal is a ' +
       'correct outcome: the compiler and the VM both refuse what the ISA cannot ' +
       'express and name the key.' },
 );
@@ -55,7 +56,15 @@ const progIn = {
   geo_base64: z.string().optional().describe('An already-compiled .geo binary, base64.'),
 };
 
-const ok = (v) => ({ content: [{ type: 'text', text: JSON.stringify(v, null, 1) }] });
+// ⚠ A tool may return an `image` alongside its summary — geo_render does, and
+//   only geo_render. It is lifted out of the JSON into a real image block so
+//   the caller SEES it; the summary still carries every number.
+const ok = (v) => {
+  const { image, ...rest } = v ?? {};
+  const content = [{ type: 'text', text: JSON.stringify(rest, null, 1) }];
+  if (image) content.push({ type: 'image', data: image.base64, mimeType: image.mimeType });
+  return { content };
+};
 const wrap = (fn) => async (args) => {
   try {
     return ok(await fn(args ?? {}));
@@ -133,6 +142,32 @@ server.registerTool('geo_inspect', {
   inputSchema: progIn,
 }, wrap(T.geo_inspect));
 
+server.registerTool('geo_render', {
+  title: 'SEE the program — a software render, no browser',
+  description:
+    'Rasterise a .geo program to a PNG contact sheet and RETURN THE PICTURE. Every other tool ' +
+    'here answers in numbers; this is the one that can show you that a foot detached, that a ' +
+    'frame is dead, or that a pose reads. Pure Node — a z-buffer scanline rasteriser and a ' +
+    'hand-rolled PNG encoder, no browser, no GPU, no dependencies. ' +
+    'Each frame is listed with its vertex count and whether it stayed inside the ceiling, ' +
+    'BECAUSE A CONTACT SHEET WILL LIE TO YOU ABOUT SMALL MOTION — read the numbers beside the ' +
+    'picture. To look closely, pass a window in MESH coordinates: y_mesh = 1 - y_cast, so the ' +
+    "FEET are the LOW y values. An image costs context; pass return_image:false for path and " +
+    'numbers only.',
+  inputSchema: {
+    ...castIn,
+    geo_path: z.string().optional().describe('Render an already-compiled .geo binary instead of a cast.'),
+    times: z.array(z.number()).max(32).optional().describe('Plan times to draw. Default: 8 evenly across the plan.'),
+    window: z.array(z.number()).length(4).optional()
+      .describe('Crop box [x0,y0,x1,y1] in MESH coordinates. ⚠ y_mesh = 1 - y_cast — the feet are LOW y.'),
+    cols: z.number().int().min(1).max(8).optional().describe('Frames per row. Default 4.'),
+    cell: z.array(z.number().int()).length(2).optional().describe('[width,height] of one frame in pixels. Default [300,400].'),
+    out_path: z.string().optional().describe('Where to write the PNG. Default bench/results/render.png.'),
+    return_image: z.boolean().optional().describe('Inline the PNG in the reply. Default true.'),
+    max_image_bytes: z.number().int().optional().describe('Refuse to inline a PNG larger than this. Default 1.5 MB.'),
+  },
+}, wrap(T.geo_render));
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
-process.stderr.write('geo-runtime MCP server ready · 5 tools · no browser required\n');
+process.stderr.write('geo-runtime MCP server ready · 6 tools · no browser required\n');

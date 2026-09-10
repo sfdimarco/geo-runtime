@@ -60,6 +60,34 @@ await client.callTool({ name: 'geo_compile', arguments: { out_path: 'bench/resul
 const i = j(await client.callTool({ name: 'geo_inspect', arguments: { geo_path: 'bench/results/smoke.geo' } }));
 check(`magic ${i.magic} · header length matches file`, i.ok && i.length_matches_header, JSON.stringify(i).slice(0, 160));
 
+console.log('\ngeo_render — the picture, and the numbers beside it');
+const px = j(await client.callTool({ name: 'geo_render', arguments: {
+  times: [0, 1.4], cols: 2, cell: [120, 160], out_path: 'bench/results/smoke-render.png', return_image: false } }));
+check(`${px.size} · ${px.frames?.length} frames · every frame inside the ceiling`,
+  px.ok && px.frames.length === 2 && px.all_within_ceiling && px.bytes > 0,
+  JSON.stringify(px).slice(0, 200));
+check('the frame table carries a vertex count per frame',
+  px.frames?.every((f) => f.verts > 0), JSON.stringify(px.frames));
+
+const im = await client.callTool({ name: 'geo_render', arguments: {
+  times: [0], cols: 1, cell: [80, 100], out_path: 'bench/results/smoke-render.png' } });
+check('an image block came back, not a base64 blob in the text',
+  im.content?.some((c) => c.type === 'image' && c.mimeType === 'image/png'),
+  im.content?.map((c) => c.type).join(','));
+
+console.log('\n.geo v0.1 — a hand that carries a profile');
+const hp = j(await client.callTool({ name: 'geo_compile', arguments: {
+  cast_path: 'bench/reference/v36-test-character-boots.geocast' } }));
+check(`${hp.bytes} B · ceiling ${hp.ceiling?.max_verts} · ${hp.parts?.hand_profiled} profiled hands`,
+  hp.ok && hp.parts.hand_profiled === 2 && hp.ceiling.max_verts === 5043,
+  JSON.stringify(hp).slice(0, 200));
+
+const hb = j(await client.callTool({ name: 'geo_compile', arguments: { cast: { parts: [
+  { id: 'body', kind: 'solid', y: [0, 0.6], w: 0.2, shape: 'ball' },
+  { id: 'leg', kind: 'limb', host: 'body', w: 0.02, hand: 'wedge' }] } } }));
+check('a hand shape the ISA has no profile for is REFUSED, by name',
+  hb.ok === false && hb.refused && /wedge/.test(hb.reason), JSON.stringify(hb).slice(0, 200));
+
 await client.close();
 console.log(`\n${fails === 0 ? '✅ MCP SMOKE: ALL GREEN' : `✖ MCP SMOKE: ${fails} FAILED`}`);
 process.exit(fails === 0 ? 0 : 1);
