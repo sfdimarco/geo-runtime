@@ -11,14 +11,17 @@
 // exists to make impossible — and the one nobody would notice, since a clamped
 // arena keeps rendering something plausible.
 //
+// ⭐ NO BROWSER. geokernel.wasm imports nothing, so the VM runs in bare Node —
+// this gate used to launch headless chromium purely to call WebAssembly
+// .instantiate inside a page, which is a dependency it never needed and which
+// made the gate unrunnable on any machine without the sandbox's own paths.
+//
 // Mutations are deliberately aimed at the arithmetic that computes the bound:
 // giant counts, 255× resolutions, offsets pointing at the far end of the file.
 // A 32-bit usize wrapping a multiply lands on a SMALL ceiling that passes the
 // arena check — that hole was found by writing this file and is why the header
 // maths saturates.
 // ═══════════════════════════════════════════════════════════════════════════
-import pkg from '/home/claude/.npm-global/lib/node_modules/playwright/index.js';
-const { chromium } = pkg;
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,20 +34,12 @@ const SEED = Number(process.argv[2] ?? 20260903);
 
 const doc = JSON.parse(fs.readFileSync(path.join(REF, 'v36-test-character.geocast'), 'utf8'));
 const { bin: seed } = compile(doc);
-const wasmB64 = fs.readFileSync(path.join(ROOT, 'web/geokernel.wasm')).toString('base64');
+const wasmBytes = fs.readFileSync(path.join(ROOT, 'web/geokernel.wasm'));
 
-const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  args: ['--no-sandbox'],
-});
-const page = await browser.newPage();
-await page.goto('about:blank');
-
-const out = await page.evaluate(async ({ wasmB64, seedB64, N, SEED }) => {
-  const dec = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-  const { instance } = await WebAssembly.instantiate(dec(wasmB64), {});
+const out = await (async ({ wasmBytes, seedBin, N, SEED }) => {
+  const { instance } = await WebAssembly.instantiate(wasmBytes, {});
   const W = instance.exports;
-  const seed = dec(seedB64);
+  const seed = seedBin;
   const pages0 = W.mem_pages();
 
   // deterministic PRNG, so a failure is reproducible from its seed
@@ -163,9 +158,8 @@ const out = await page.evaluate(async ({ wasmB64, seedB64, N, SEED }) => {
   }
 
   return { stats, failures: failures.slice(0, 12), pages0, pagesEnd: W.mem_pages() };
-}, { wasmB64, seedB64: Buffer.from(seed).toString('base64'), N, SEED });
+})({ wasmBytes, seedBin: seed, N, SEED });
 
-await browser.close();
 
 const S = out.stats;
 console.log(`\n════ FUZZ · the bound, tested ════   seed ${SEED} · ${S.tried} programs`);

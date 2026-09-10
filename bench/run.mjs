@@ -15,8 +15,7 @@
 //   actually costs 215 ms. A phase timed with finish() around it is a phase
 //   nobody measured.
 // ═══════════════════════════════════════════════════════════════════════════
-import pkg from '/home/claude/.npm-global/lib/node_modules/playwright/index.js';
-const { chromium } = pkg;
+import { launchOrSkip } from './browser.mjs';
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -43,13 +42,9 @@ const server = http.createServer((req, res) => {
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const BASE = `http://127.0.0.1:${server.address().port}`;
 
-const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  // ⚠ not cosmetic: without these the context still works but
-  //   EXT_disjoint_timer_query_webgl2 is absent and raster is unmeasurable.
-  args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader',
-         '--enable-unsafe-swiftshader'],
-});
+// ⚠ gl:true is not cosmetic — without SwiftShader the context still works
+//   but EXT_disjoint_timer_query_webgl2 is absent and raster is unmeasurable.
+const browser = await launchOrSkip('instrument', { gl: true });
 
 // ═══ 1 · THE SWEEP ════════════════════════════════════════════════════════
 const page = await browser.newPage({ viewport: { width: 1240, height: 760 } });

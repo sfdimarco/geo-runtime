@@ -1,0 +1,32 @@
+{
+  "name": "geo-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The .geo binary is the runtime \u2014 a bounded VM for animated form. Rust/WASM hosts it, WebGL2 displays it.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "./test.sh",
+    "test:quick": "./test.sh quick",
+    "build": "./build.sh",
+    "fuzz": "node bench/fuzz.mjs",
+    "validate": "node bench/validate.mjs",
+    "sprint1": "node bench/sprint1.mjs",
+    "instrument": "node bench/run.mjs",
+    "browsers": "playwright install chromium",
+    "mcp": "node mcp/server.mjs",
+    "mcp:smoke": "node mcp/smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "bin": {
+    "geo-mcp": "mcp/server.mjs"
+  }
+}

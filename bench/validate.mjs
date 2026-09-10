@@ -9,8 +9,7 @@
 //   until this passes, because a fast engine that draws a different character
 //   is not a faster engine.
 // ═══════════════════════════════════════════════════════════════════════════
-import pkg from '/home/claude/.npm-global/lib/node_modules/playwright/index.js';
-const { chromium } = pkg;
+import { launchOrSkip } from './browser.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,10 +32,7 @@ console.log(`  CEILING DECLARED IN THE HEADER: ${info.maxVerts.toLocaleString()}
 fs.mkdirSync(path.join(ROOT, 'bench/results'), { recursive: true });
 fs.writeFileSync(path.join(ROOT, 'bench/results/dummy.geo'), bin);
 
-const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-  args: ['--no-sandbox'],
-});
+const browser = await launchOrSkip('validate');
 const page = await browser.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));

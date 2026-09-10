@@ -9,6 +9,35 @@ at three angles, **10.2× faster than GeoV** for the same 5,787 vertices.
 
 ## Build and run
 
+One command, and a board at the end:
+
+    ./test.sh
+
+**Nothing is required to prove the bound.** `geokernel.wasm` imports nothing —
+no clock, no log, no allocator, no random — so the VM runs in bare Node, and a
+built kernel is committed. Straight out of a clone, with no install of any kind:
+
+    node bench/fuzz.mjs      # 4,000 mutated programs · ~2s · no browser, no cargo
+
+The other gates need one of two prerequisites. `./test.sh` **skips them with a
+stated reason and exits 3** rather than failing, and the board counts a skip
+separately — it will not print "ALL GREEN" while a gate did not run.
+
+| gate | needs | why it needs it |
+|---|---|---|
+| `unit` · `build` | cargo + `wasm32-unknown-unknown` | rebuilds the kernel from Rust source |
+| `validate` | headless chromium | the reference side is GeoV's own `gcBuildForm`, which is browser code |
+| `sprint1` | headless chromium | real layout, a real mouse, three angles |
+| `instrument` | headless chromium | WebGL2 and the raster clock |
+
+    npm install && npx playwright install chromium        # the [browser] gates
+    # rustup: https://rustup.rs                           # the [cargo] gates
+    rustup target add wasm32-unknown-unknown
+
+`GEO_CHROMIUM=/path/to/chrome` overrides browser discovery if you already have one.
+
+Gates individually:
+
     ./build.sh               # cargo → wasm → dummy.geo → dist/index.html
     node bench/validate.mjs  # the VM vs GeoV itself. THE CORRECTNESS GATE.
     node bench/fuzz.mjs      # the bound, tested against 4,000 mutated programs
