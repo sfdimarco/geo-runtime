@@ -5,23 +5,21 @@
 
   <line x1="78" y1="354.0" x2="732" y2="354.0" stroke="#1E2A2E"/>
   <text x="68" y="357.5" font-size="10" fill="#6C7C81" text-anchor="end">0.00 ms</text>
-  <line x1="78" y1="257.3" x2="732" y2="257.3" stroke="#1E2A2E"/>
-  <text x="68" y="260.8" font-size="10" fill="#6C7C81" text-anchor="end">1.0 ms</text>
-  <line x1="78" y1="160.6" x2="732" y2="160.6" stroke="#1E2A2E"/>
-  <text x="68" y="164.1" font-size="10" fill="#6C7C81" text-anchor="end">2.0 ms</text>
-  <line x1="78" y1="63.9" x2="732" y2="63.9" stroke="#1E2A2E"/>
-  <text x="68" y="67.4" font-size="10" fill="#6C7C81" text-anchor="end">3.0 ms</text>
+  <line x1="78" y1="250.8" x2="732" y2="250.8" stroke="#1E2A2E"/>
+  <text x="68" y="254.3" font-size="10" fill="#6C7C81" text-anchor="end">1.0 ms</text>
+  <line x1="78" y1="147.6" x2="732" y2="147.6" stroke="#1E2A2E"/>
+  <text x="68" y="151.1" font-size="10" fill="#6C7C81" text-anchor="end">2.0 ms</text>
 
-  <polygon points="78.0,348.0 208.8,343.4 339.6,329.3 470.4,309.0 601.2,255.1 732.0,217.4 732.0,354.0 601.2,354.0 470.4,354.0 339.6,354.0 208.8,354.0 78.0,354.0" fill="#2FD0DE" fill-opacity="0.86"/>
-  <polygon points="78.0,348.0 208.8,342.9 339.6,329.3 470.4,308.6 601.2,254.6 732.0,216.7 732.0,217.4 601.2,255.1 470.4,309.0 339.6,329.3 208.8,343.4 78.0,348.0" fill="#7B95E8" fill-opacity="0.86"/>
-  <polygon points="78.0,342.4 208.8,339.7 339.6,317.3 470.4,281.7 601.2,121.9 732.0,89.3 732.0,216.7 601.2,254.6 470.4,308.6 339.6,329.3 208.8,342.9 78.0,348.0" fill="#E2B33A" fill-opacity="0.86"/>
-  <polygon points="78.0,341.2 208.8,338.3 339.6,315.6 470.4,277.8 601.2,119.5 732.0,86.1 732.0,89.3 601.2,121.9 470.4,281.7 339.6,317.3 208.8,339.7 78.0,342.4" fill="#F2594C" fill-opacity="0.86"/>
-  <polyline points="78.0,341.2 208.8,338.3 339.6,315.6 470.4,277.8 601.2,119.5 732.0,86.1" fill="none" stroke="#E4EDEF" stroke-width="1.6"/>
-  <circle cx="78.0" cy="341.2" r="3" fill="#E4EDEF"/>
-  <circle cx="208.8" cy="338.3" r="3" fill="#E4EDEF"/>
-  <circle cx="339.6" cy="315.6" r="3" fill="#E4EDEF"/>
-  <circle cx="470.4" cy="277.8" r="3" fill="#E4EDEF"/>
-  <circle cx="601.2" cy="119.5" r="3" fill="#E4EDEF"/>
+  <polygon points="78.0,348.1 208.8,340.6 339.6,333.6 470.4,310.4 601.2,270.4 732.0,226.3 732.0,354.0 601.2,354.0 470.4,354.0 339.6,354.0 208.8,354.0 78.0,354.0" fill="#2FD0DE" fill-opacity="0.86"/>
+  <polygon points="78.0,348.1 208.8,340.6 339.6,333.4 470.4,310.4 601.2,270.4 732.0,226.3 732.0,226.3 601.2,270.4 470.4,310.4 339.6,333.6 208.8,340.6 78.0,348.1" fill="#7B95E8" fill-opacity="0.86"/>
+  <polygon points="78.0,342.6 208.8,337.2 339.6,319.4 470.4,291.0 601.2,167.7 732.0,88.2 732.0,226.3 601.2,270.4 470.4,310.4 339.6,333.4 208.8,340.6 78.0,348.1" fill="#E2B33A" fill-opacity="0.86"/>
+  <polygon points="78.0,340.8 208.8,336.7 339.6,318.4 470.4,288.5 601.2,166.4 732.0,86.1 732.0,88.2 601.2,167.7 470.4,291.0 339.6,319.4 208.8,337.2 78.0,342.6" fill="#F2594C" fill-opacity="0.86"/>
+  <polyline points="78.0,340.8 208.8,336.7 339.6,318.4 470.4,288.5 601.2,166.4 732.0,86.1" fill="none" stroke="#E4EDEF" stroke-width="1.6"/>
+  <circle cx="78.0" cy="340.8" r="3" fill="#E4EDEF"/>
+  <circle cx="208.8" cy="336.7" r="3" fill="#E4EDEF"/>
+  <circle cx="339.6" cy="318.4" r="3" fill="#E4EDEF"/>
+  <circle cx="470.4" cy="288.5" r="3" fill="#E4EDEF"/>
+  <circle cx="601.2" cy="166.4" r="3" fill="#E4EDEF"/>
   <circle cx="732.0" cy="86.1" r="3" fill="#E4EDEF"/>
 
   <line x1="78" y1="354" x2="732" y2="354" stroke="#3A4A50"/>
@@ -42,48 +40,50 @@
     <g transform="translate(746,60)">
       <rect width="11" height="11" y="-9" fill="#F2594C"/>
       <text x="18" y="0" font-size="11.5" fill="#E4EDEF" font-weight="700">submit</text>
-      <text x="18" y="15" font-size="10.5" fill="#8A99A0">0.033 ms · 1%</text>
+      <text x="18" y="15" font-size="10.5" fill="#8A99A0">0.020 ms · 1%</text>
     </g>
     <g transform="translate(746,94)">
       <rect width="11" height="11" y="-9" fill="#E2B33A"/>
       <text x="18" y="0" font-size="11.5" fill="#E4EDEF" font-weight="700">upload</text>
-      <text x="18" y="15" font-size="10.5" fill="#8A99A0">1.317 ms · 48%</text>
+      <text x="18" y="15" font-size="10.5" fill="#8A99A0">1.337 ms · 52%</text>
     </g>
     <g transform="translate(746,128)">
       <rect width="11" height="11" y="-9" fill="#7B95E8"/>
       <text x="18" y="0" font-size="11.5" fill="#E4EDEF" font-weight="700">view</text>
-      <text x="18" y="15" font-size="10.5" fill="#8A99A0">0.008 ms · 0%</text>
+      <text x="18" y="15" font-size="10.5" fill="#8A99A0">0.000 ms · 0%</text>
     </g>
     <g transform="translate(746,162)">
       <rect width="11" height="11" y="-9" fill="#2FD0DE"/>
       <text x="18" y="0" font-size="11.5" fill="#E4EDEF" font-weight="700">build · wasm</text>
-      <text x="18" y="15" font-size="10.5" fill="#8A99A0">1.413 ms · 51%</text>
+      <text x="18" y="15" font-size="10.5" fill="#8A99A0">1.238 ms · 48%</text>
     </g>
   
   <g opacity="0.95">
     <rect x="78" y="294" width="654" height="54" fill="#12191C" stroke="#243035"/>
-    <polyline points="78.0,341.6 208.8,338.0 339.6,336.1 470.4,329.2 601.2,316.1 732.0,301.0" fill="none" stroke="#E2B33A" stroke-width="1.6" stroke-dasharray="4 3"/>
-    <circle cx="78.0" cy="341.6" r="2.6" fill="#E2B33A"/><circle cx="208.8" cy="338.0" r="2.6" fill="#E2B33A"/><circle cx="339.6" cy="336.1" r="2.6" fill="#E2B33A"/><circle cx="470.4" cy="329.2" r="2.6" fill="#E2B33A"/><circle cx="601.2" cy="316.1" r="2.6" fill="#E2B33A"/><circle cx="732.0" cy="301.0" r="2.6" fill="#E2B33A"/>
+    <polyline points="78.0,341.8 208.8,340.6 339.6,336.7 470.4,328.0 601.2,316.3 732.0,301.0" fill="none" stroke="#E2B33A" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <circle cx="78.0" cy="341.8" r="2.6" fill="#E2B33A"/><circle cx="208.8" cy="340.6" r="2.6" fill="#E2B33A"/><circle cx="339.6" cy="336.7" r="2.6" fill="#E2B33A"/><circle cx="470.4" cy="328.0" r="2.6" fill="#E2B33A"/><circle cx="601.2" cy="316.3" r="2.6" fill="#E2B33A"/><circle cx="732.0" cy="301.0" r="2.6" fill="#E2B33A"/>
     <text x="86" y="308" font-size="9.5" fill="#E2B33A" font-weight="700" letter-spacing="1.2">RASTER · SOFTWARE (SWIFTSHADER) — REGRESSION SIGNAL, NOT AN ABSOLUTE CLAIM</text>
-    <text x="724" y="342" font-size="10" fill="#E2B33A" text-anchor="end" font-weight="700">60 ms</text>
-    <text x="86" y="342" font-size="10" fill="#8A7534">8 ms</text>
+    <text x="724" y="342" font-size="10" fill="#E2B33A" text-anchor="end" font-weight="700">56 ms</text>
+    <text x="86" y="342" font-size="10" fill="#8A7534">7 ms</text>
   </g>
   
   <text x="78" y="444" font-size="10" fill="#6C7C81" letter-spacing="1.4">RUN HISTORY — FRAME AT THE WIDEST SWEEP · LABELLED BY THE RES IT WAS BUILT FROM</text>
   <rect x="78.0" y="485.4" width="30.0" height="14.6" fill="#24555C"/>
   <text x="93.0" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="159.8" y="460.0" width="30.0" height="40.0" fill="#24555C"/>
-  <text x="174.8" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">72</text>
-  <rect x="241.5" y="485.6" width="30.0" height="14.4" fill="#24555C"/>
-  <text x="256.5" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="323.3" y="461.6" width="30.0" height="38.4" fill="#24555C"/>
-  <text x="338.3" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="405.0" y="472.7" width="30.0" height="27.3" fill="#24555C"/>
-  <text x="420.0" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="486.8" y="474.3" width="30.0" height="25.7" fill="#24555C"/>
-  <text x="501.8" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="568.5" y="483.8" width="30.0" height="16.2" fill="#24555C"/>
-  <text x="583.5" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
-  <rect x="650.3" y="483.7" width="30.0" height="16.3" fill="#2FD0DE"/>
-  <text x="665.3" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="150.7" y="460.0" width="30.0" height="40.0" fill="#24555C"/>
+  <text x="165.7" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">72</text>
+  <rect x="223.3" y="485.6" width="30.0" height="14.4" fill="#24555C"/>
+  <text x="238.3" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="296.0" y="461.6" width="30.0" height="38.4" fill="#24555C"/>
+  <text x="311.0" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="368.7" y="472.7" width="30.0" height="27.3" fill="#24555C"/>
+  <text x="383.7" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="441.3" y="474.3" width="30.0" height="25.7" fill="#24555C"/>
+  <text x="456.3" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="514.0" y="483.8" width="30.0" height="16.2" fill="#24555C"/>
+  <text x="529.0" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="586.7" y="483.7" width="30.0" height="16.3" fill="#24555C"/>
+  <text x="601.7" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
+  <rect x="659.3" y="484.8" width="30.0" height="15.2" fill="#2FD0DE"/>
+  <text x="674.3" y="512" font-size="9" fill="#6C7C81" text-anchor="middle">48</text>
 </svg>

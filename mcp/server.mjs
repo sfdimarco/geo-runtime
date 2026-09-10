@@ -32,7 +32,9 @@ const server = new McpServer(
       'single instruction runs. Compile with geo_compile, prove the bound with ' +
       'geo_validate, time it with geo_bench, and SEE it with geo_render. Tools return ' +
       'SUMMARIES, never mesh buffers — ask for sample_verts if you need actual numbers, ' +
-      'and geo_render if you need to look. Refusal is a ' +
+      'and geo_render if you need to look. BEFORE CHANGING ANYTHING BY EYE, BUILD THE ' +
+      'SWEEP: geo_sweep varies ONE axis into one labelled sheet with the reference pinned in ' +
+      'frame, and geo_ab puts two to four finalists side by side. Refusal is a ' +
       'correct outcome: the compiler and the VM both refuse what the ISA cannot ' +
       'express and name the key.' },
 );
@@ -174,6 +176,72 @@ server.registerTool('geo_render', {
   },
 }, wrap(T.geo_render));
 
+// ═══ THE TINKER LOOP ═══════════════════════════════════════════════════════
+server.registerTool('geo_ab', {
+  title: 'A/B two to four casts, side by side — the before/after',
+  description:
+    'Render 2-4 .geocast variants THROUGH THE SAME RASTERISER, in ONE session, into one ' +
+    'labelled sheet or one animation. This is the BEFORE/AFTER: grids are for exploring, ' +
+    'PAIRS ARE FOR DECIDING, so the panels are big enough to actually judge. ' +
+    'ONE SHARED FRAME across every variant and every time — a variant that silently rescales ' +
+    'is not a comparison, it is two different pictures. ' +
+    'Still: one ROW per variant, time across. gif:true: variants side by side, one loop. ' +
+    'Every panel is labelled in-frame and every frame reports its vertex count, so a small ' +
+    'motion cannot hide. NO VERDICT IS RETURNED, on purpose — look at the picture and pick.',
+  inputSchema: {
+    casts: z.array(z.object({
+      label: z.string().optional().describe('Shown in-frame on that panel. Say what VARIES, not what is frozen.'),
+      cast: z.record(z.string(), z.any()).optional().describe('A .geocast inline.'),
+      cast_path: z.string().optional().describe('Path to a .geocast, absolute or repo-relative.'),
+    })).min(2).max(4).describe('The finalists. First one is drawn as the reference side.'),
+    t: z.number().optional().describe('A single plan time.'),
+    times: z.array(z.number()).max(48).optional().describe('Several plan times. Default 6 across the plan, or fps x plan_end for a gif.'),
+    window: z.array(z.number()).length(4).optional()
+      .describe('Crop [x0,y0,x1,y1] in MESH coordinates. ⚠ y_mesh = 1 - y_cast — the feet are LOW y.'),
+    cell: z.array(z.number().int()).length(2).optional().describe('[width,height] of one panel. Default [300,400].'),
+    gif: z.boolean().optional().describe('Animate one loop instead of a still sheet.'),
+    fps: z.number().int().min(1).max(50).optional().describe('Frames per second for gif:true. Default 10.'),
+    out_path: z.string().optional(),
+    return_image: z.boolean().optional().describe('Inline the result. Default true for a still, FALSE for an animation.'),
+    max_image_bytes: z.number().int().optional(),
+    res: z.record(z.string(), z.number().int()).optional(),
+  },
+}, wrap(T.geo_ab));
+
+server.registerTool('geo_sweep', {
+  title: 'Sweep ONE axis of a cast into one contact sheet',
+  description:
+    'Vary ONE key across many values and render them all into a single labelled contact sheet, ' +
+    'in ONE session. BEFORE MAKING THE ART, BUILD THE SWEEP: booting the runtime is the ' +
+    'expensive part and a variant after that is cheap, so one call buys thirty looks instead ' +
+    'of one. ' +
+    'THE REFERENCE IS PINNED IN FRAME as the yellow tile — judging a variant with no reference ' +
+    'visible is the most reliable way to drift to generic, and you will not notice the drift. ' +
+    'SWEEP WIDE: include values you are sure are wrong, they are cheap and they calibrate the ' +
+    'ones you think are right. ONE VARIABLE PER SWEEP — two axes is a grid, four is a lottery ' +
+    'ticket and you will not be able to attribute the result to anything. Freeze the winner, ' +
+    'then sweep the next axis; style converges in three or four sweeps. ' +
+    'A value the ISA refuses is drawn as a REFUSED tile naming its key, not thrown away. ' +
+    'Show the human the sheet, not a conclusion.',
+  inputSchema: {
+    cast: z.record(z.string(), z.any()).optional().describe('A .geocast inline.'),
+    cast_path: z.string().optional().describe('Path to a .geocast. Defaults to the v0.1 boots reference character.'),
+    axis: z.string().describe('A dotted path into the cast, LISTS ADDRESSED BY id: "parts.legL.handLen", "poses.stomp.legL.to.y", "dw". It must already be SET on that object, or the sweep compares a default against itself.'),
+    values: z.array(z.union([z.number(), z.string(), z.boolean()])).min(2).max(40)
+      .describe('The values to try. Wide beats narrow.'),
+    t: z.number().optional().describe('The plan time to draw every variant at. Default 0 — pick the moment the axis actually shows.'),
+    window: z.array(z.number()).length(4).optional()
+      .describe('Crop [x0,y0,x1,y1] in MESH coordinates. ⚠ y_mesh = 1 - y_cast.'),
+    cell: z.array(z.number().int()).length(2).optional().describe('[width,height] of one tile. Default [220,300].'),
+    cols: z.number().int().min(1).max(10).optional().describe('Tiles per row. Default 6.'),
+    reference: z.boolean().optional().describe('Pin the unmodified cast as tile zero. Default true. Turning this off is almost always a mistake.'),
+    out_path: z.string().optional(),
+    return_image: z.boolean().optional(),
+    max_image_bytes: z.number().int().optional(),
+    res: z.record(z.string(), z.number().int()).optional(),
+  },
+}, wrap(T.geo_sweep));
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
-process.stderr.write('geo-runtime MCP server ready · 6 tools · no browser required\n');
+process.stderr.write('geo-runtime MCP server ready · 8 tools · no browser required\n');

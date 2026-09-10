@@ -337,3 +337,73 @@ export async function geo_render(args = {}) {
           'To look closely at one region, pass a window — in MESH coordinates, where y_mesh = 1 - y_cast.',
   };
 }
+
+// ═══ geo_ab · geo_sweep — THE TINKER LOOP, as tools ════════════════════════
+// ⭐⭐⭐ BEFORE MAKING THE ART, BUILD THE SWEEP. The rest of this server answers
+//   questions about ONE program. These two make LOOKING CHEAP: the kernel boots
+//   once and every variant is a `K.load` into the same instance, so one call
+//   buys thirty looks instead of one. That ratio is the only number that
+//   matters — at fifteen looks a session you are not iterating, you are making
+//   blind structural changes and shipping the average of your guesses.
+//
+// ⭐ They return the numbers beside the picture AND NO VERDICT. A grid is a
+//   fast, honest question; a paragraph of art theory is a slow, arguable one.
+
+export async function geo_ab(args = {}) {
+  const { ab } = await import('../tools/tinker.mjs');
+  const casts = (args.casts ?? []).map((c) => ({
+    label: c.label, cast: c.cast,
+    cast_path: c.cast_path ? abs(c.cast_path) : undefined,
+  }));
+  const r = await ab({
+    casts, res: args.res,
+    times: args.times ?? null, t: args.t ?? null,
+    window: args.window ?? null,
+    cell: args.cell ?? [300, 400],
+    gif: !!args.gif, fps: args.fps ?? 10,
+    out: args.out_path ? abs(args.out_path) : null,
+  });
+  if (!r.ok) return r;
+  const png = fs.readFileSync(r.out);
+  const cap = args.max_image_bytes ?? 1_500_000;
+  const inline = (r.format === 'gif' ? args.return_image === true : args.return_image !== false)
+                 && png.length <= cap;
+  return {
+    ...r,
+    image: inline ? { mimeType: r.format === 'gif' ? 'image/gif' : 'image/png',
+                      base64: png.toString('base64') } : undefined,
+    image_note: inline ? undefined
+      : 'not inlined — it is on disk at the path above, for a person to open',
+  };
+}
+
+export async function geo_sweep(args = {}) {
+  const { sweep } = await import('../tools/tinker.mjs');
+  let r;
+  try {
+    r = await sweep({
+      cast: args.cast, cast_path: args.cast_path ? abs(args.cast_path) : null,
+      axis: args.axis, values: args.values, t: args.t ?? 0,
+      window: args.window ?? null,
+      cell: args.cell ?? [220, 300], cols: args.cols ?? 6,
+      reference: args.reference !== false, res: args.res,
+      out: args.out_path ? abs(args.out_path) : null,
+    });
+  } catch (e) {
+    // ⚠ a bad AXIS is a question about the cast, not a crash. Say which.
+    return { ok: false, axis: args.axis, reason: e.message,
+      note: 'An axis is a dotted path into the .geocast, with lists addressed by id — ' +
+            'parts.legL.handLen · poses.stomp.legL.to.y · dw. It must already be SET on ' +
+            'that object, or the sweep would compare a default against itself.' };
+  }
+  if (!r.ok) return r;
+  const png = fs.readFileSync(r.out);
+  const cap = args.max_image_bytes ?? 1_500_000;
+  const inline = args.return_image !== false && png.length <= cap;
+  return {
+    ...r,
+    image: inline ? { mimeType: 'image/png', base64: png.toString('base64') } : undefined,
+    image_note: inline ? undefined : 'not inlined — it is on disk at the path above',
+  };
+}
+

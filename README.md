@@ -50,6 +50,8 @@ Gates individually:
     node bench/sprint1.mjs   # the rig: reachability, three angles, the number
     node bench/run.mjs       # sprint 0's pipe sweep and chart
     node bench/joint.mjs     # DOES THE FOOT STAY ON THE LEG? frame by frame
+    node tools/tinker.mjs ab                    # the before/after, as a sheet
+    node tools/tinker.mjs sweep --axis parts.legL.handLen --values 1.2,2.4,4.2 --t 1.49
     node tools/render.mjs    # SEE it — a software render, no browser, no deps
     node tools/render.mjs bench/reference/v36-test-character-boots.geocast --gif --fps 10
 
@@ -127,7 +129,7 @@ missing phase.
 `hello::RES` is that constant. `run.mjs` reads it **out of the wasm** — the
 harness is never told what it was built from, it asks.
 
-## The MCP server — six tools, no browser
+## The MCP server — eight tools, no browser
 
     node mcp/install.mjs     # register with Claude Desktop
     node mcp/smoke.mjs       # spawn it and call every tool over real stdio
@@ -142,6 +144,8 @@ harness is never told what it was built from, it asks.
 | `geo_bench` | `geo_build` timed, **with its noise floor printed beside it** |
 | `geo_inspect` | a header, read without executing anything |
 | `geo_render` | ⭐ **the picture, and the MOTION** — a z-buffer software rasteriser and a GIF encoder, both in pure Node |
+| `geo_ab` | ⭐ **the before/after** — 2–4 casts side by side in one shared frame, still or animated |
+| `geo_sweep` | ⭐⭐ **one axis, many values, one sheet**, the reference pinned in frame |
 
 ⚠⚠ **MCP does not make tokens cheaper.** An argument is a token wherever it
 arrives. What is cheap is the *shape*: a statement in, a **summary** out. Every
@@ -161,6 +165,32 @@ built from the frames themselves, in **~170 lines and no dependencies**, same
 rule as the PNG encoder beside it: *if the proof needs a library nobody has, it
 is not a proof.* An animation is written to disk and **not** inlined — a model
 sees one still of it and pays for the whole file; the GIF is for a person.
+
+## The tinker loop
+
+> **Before making the art, build the sweep.**
+
+Generated visual work comes out lifeless for a reason that has nothing to do with
+taste: **the feedback loop is too slow to actually tinker.** At a minute a look you
+get fifteen looks in a session, so you make large blind structural changes and check
+them an hour apart — and what ships is *the average of your guesses*.
+
+Booting the runtime is the expensive part; a variant after that is cheap. So
+`tools/tinker.mjs` instantiates the kernel **once** and every variant is a
+`K.load(bin)` into the same instance. One call buys thirty looks instead of one,
+and every tile goes through **the same rasteriser `geo_render` uses** — a sweep
+rendered through a different path tells you about the sweep, not about what ships.
+
+- **The reference is pinned in frame** (the yellow tile). Judging a variant with no
+  reference visible is the most reliable way to drift to generic, and you will not
+  notice the drift; that is what drift is.
+- **Labels show only what varies.** A sheet you cross-reference against a caption is
+  a sheet you read slowly.
+- **One variable per sweep.** Two axes is a grid. Four is a lottery ticket.
+- **A refused value is a tile that names its key**, not a thrown sweep. The values
+  you were sure were wrong are the ones that calibrate the rest.
+- **No verdict is returned.** A grid is a fast, honest question; a paragraph of art
+  theory is a slow, arguable one.
 
 ## Documentation
 

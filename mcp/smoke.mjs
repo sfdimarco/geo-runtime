@@ -103,6 +103,40 @@ const hb = j(await client.callTool({ name: 'geo_compile', arguments: { cast: { p
 check('a hand shape the ISA has no profile for is REFUSED, by name',
   hb.ok === false && hb.refused && /wedge/.test(hb.reason), JSON.stringify(hb).slice(0, 200));
 
+console.log('\nTHE TINKER LOOP — geo_ab, the before/after');
+const abr = j(await client.callTool({ name: 'geo_ab', arguments: {
+  casts: [{ label: 'BEFORE', cast_path: 'bench/reference/v36-test-character.geocast' },
+          { label: 'AFTER',  cast_path: 'bench/reference/v36-test-character-boots.geocast' }],
+  times: [0, 1.49], cell: [110, 140], out_path: 'bench/results/smoke-ab.png', return_image: false } }));
+check(`${abr.size} · ${abr.variants?.length} variants · ${abr.variants?.[0]?.bytes} B vs ${abr.variants?.[1]?.bytes} B`,
+  abr.ok && abr.variants.length === 2 && abr.variants[1].ceiling === 5043
+  && abr.variants.every((v) => v.frames.length === 2 && v.frames.every((f) => f.within_ceiling)),
+  JSON.stringify(abr).slice(0, 220));
+check('ONE shared frame across both variants, so neither silently rescales',
+  Array.isArray(abr.window) && abr.window.length === 4, JSON.stringify(abr.window));
+check('it returns the numbers and NO verdict',
+  !/better|worse|recommend|should use/i.test(JSON.stringify(abr)), 'a verdict leaked into the reply');
+
+console.log('\nTHE TINKER LOOP — geo_sweep, one axis, the reference pinned');
+const sw = j(await client.callTool({ name: 'geo_sweep', arguments: {
+  cast_path: 'bench/reference/v36-test-character-boots.geocast',
+  axis: 'parts.legL.handLen', values: [1.2, 2.783, 0, 4.2], t: 1.49,
+  cell: [110, 140], cols: 5, out_path: 'bench/results/smoke-sweep.png', return_image: false } }));
+check(`${sw.size} · ${sw.variants?.length} tiles (reference + 4)`,
+  sw.ok && sw.variants.length === 5 && sw.variants[0].label === 'REF',
+  JSON.stringify(sw).slice(0, 220));
+check('a value the ISA refuses is a TILE that names its key, not a thrown sweep',
+  sw.variants?.some((v) => v.ok === false && /handLen/.test(v.refused ?? '')) &&
+  sw.variants?.filter((v) => v.ok).length === 4,
+  JSON.stringify(sw.variants));
+
+console.log('\ngeo_sweep — an axis that is not there');
+const bad = j(await client.callTool({ name: 'geo_sweep', arguments: {
+  cast_path: 'bench/reference/v36-test-character-boots.geocast',
+  axis: 'parts.legL.wobble', values: [1, 2] } }));
+check('REFUSED, and it says why sweeping an unset key would lie',
+  bad.ok === false && /wobble/.test(bad.reason ?? ''), JSON.stringify(bad).slice(0, 200));
+
 await client.close();
 console.log(`\n${fails === 0 ? '✅ MCP SMOKE: ALL GREEN' : `✖ MCP SMOKE: ${fails} FAILED`}`);
 process.exit(fails === 0 ? 0 : 1);
