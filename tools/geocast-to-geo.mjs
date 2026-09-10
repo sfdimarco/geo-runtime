@@ -17,7 +17,10 @@ const HEADER = 64, PART = 96, CHAN = 48, BEAT = 24;
 // GeoV's own defaults — GC_DEF, read out of the engine, not guessed.
 const GC_DEF = {
   solid: { k: 0.35, x: 0 },
-  limb: { w: 0.022, taper: 0.78, handScale: 1.2, seat: 0.86 },
+  limb: { w: 0.022, taper: 0.78, handScale: 1.2, seat: 0.86,
+          // ⭐ v0.1 — the mitt's own span, so a profiled hand with no length
+          //   given occupies exactly the volume a mitt did: -0.85r .. +1.75r
+          handLen: 2.6, handBack: 0.85 },
 };
 
 const PROF = { ball: 0, pinch: 1, cone: 2, slab: 3, pear: 4, sack: 5, tube: 6 };
@@ -85,7 +88,7 @@ export function compile(doc, res = {}) {
 
   const index = new Map(src.map((p, i) => [p.id, i]));
 
-  let nSolids = 0, nLimbs = 0, nHands = 0, nLeaves = 0;
+  let nSolids = 0, nLimbs = 0, nHands = 0, nLeaves = 0, nProfiled = 0;
   const parts = Buffer.alloc(src.length * PART);
   src.forEach((p, i) => {
     const b = i * PART;
@@ -93,6 +96,22 @@ export function compile(doc, res = {}) {
     const kind = p.kind === 'solid' ? 0 : p.kind === 'limb' ? 1 : 2;
     const off = !!p.off;
     const hand = p.kind === 'limb' && !!p.hand;
+    if (p.hand && p.kind !== 'limb') {
+      refuse(`a hand on a "${p.kind}" (part "${p.id}") — only a limb carries one`);
+    }
+    // ⭐ v0.1 — `hand` may NAME A PROFILE, and then the foot is that volume
+    //   instead of the single mitt shape v0 had. "mitt" (or true) is unchanged,
+    //   byte for byte.
+    const handName = hand ? (p.hand === true ? 'mitt' : String(p.hand)) : null;
+    const handProf = (handName && handName !== 'mitt') ? handName : null;
+    if (handProf && !(handProf in PROF)) {
+      refuse(`hand "${handProf}" (part "${p.id}") — a hand is "mitt", or one of ${Object.keys(PROF).join(', ')}`);
+    }
+    const handLen = handProf ? +def(p, 'limb', 'handLen', 2.6) : 0;
+    const handBack = handProf ? +def(p, 'limb', 'handBack', 0.85) : 0;
+    if (handProf && !(handLen > 0)) {
+      refuse(`handLen ${handLen} (part "${p.id}") — a hand's length must be > 0`);
+    }
 
     if (isLeaf && p.tilt) refuse(`a leaf with tilt (part "${p.id}") — v0 has no tilt slot`);
     if (p.host !== undefined && !index.has(p.host)) {
@@ -108,13 +127,16 @@ export function compile(doc, res = {}) {
     const K = p.k === undefined ? GC_DEF.solid.k : p.k;
     const shape = p.shape || 'tube';
     if (kind === 0 && !(shape in PROF)) refuse(`profile "${shape}" (part "${p.id}")`);
-    const profId = kind === 0 ? PROF[shape] : PROF.tube;
+    const profId = kind === 0 ? PROF[shape] : (handProf ? PROF[handProf] : PROF.tube);
     // the resolved profile parameter, not the authored k
-    const profK = shape === 'cone' ? 0.30 + 0.60 * (1 - K)
-                : (shape === 'pinch' || shape === 'slab') ? K : 0;
+    const resolveK = (name, k) => name === 'cone' ? 0.30 + 0.60 * (1 - k)
+                   : (name === 'pinch' || name === 'slab') ? k : 0;
+    const profK = kind === 0 ? resolveK(shape, K)
+                : handProf ? resolveK(handProf, p.handK === undefined ? GC_DEF.solid.k : p.handK)
+                : 0;
 
     parts.writeUInt8(kind, b);
-    parts.writeUInt8((off ? 1 : 0) | (hand ? 2 : 0), b + 1);
+    parts.writeUInt8((off ? 1 : 0) | (hand ? 2 : 0) | (handProf ? 4 : 0), b + 1);
     parts.writeUInt8(p.host !== undefined ? index.get(p.host) : 0xFF, b + 2);
     parts.writeUInt8(profId, b + 3);
     parts.writeUInt32LE(rgb(col(p.a, '#9AA3B2')), b + 4);
@@ -139,9 +161,22 @@ export function compile(doc, res = {}) {
     e(p.mid).forEach((v, j) => parts.writeFloatLE(v, b + 60 + j * 4));
     e(p.to).forEach((v, j) => parts.writeFloatLE(v, b + 72 + j * 4));
 
-    parts.writeFloatLE(isLeaf ? (p.bow == null ? 0.35 : p.bow) : 0, b + 84);
-    parts.writeFloatLE(isLeaf ? (p.h == null ? 0.22 : p.h) : 0, b + 88);
-    parts.writeFloatLE(isLeaf ? (p.az || 0) : 0, b + 92);
+    // ⚠⚠ THESE THREE SLOTS ARE PER-KIND, NOT NEW FIELDS. A leaf's
+    //   bow/h/az and a profiled hand's back/length/colour are the SAME BYTES:
+    //   a limb never read the leaf slots and a leaf never carries a hand, so
+    //   the 96-byte part record did not have to grow for v0.1 and neither did
+    //   the header. See docs/GEO-V0-SPEC.md.
+    if (handProf) {
+      parts.writeFloatLE(handBack, b + 84);
+      parts.writeFloatLE(handLen, b + 88);
+      parts.writeUInt32LE(rgb(col(p.handA === undefined ? p.a : p.handA,
+                                  col(p.a, '#9AA3B2'))), b + 92);
+    } else {
+      parts.writeFloatLE(isLeaf ? (p.bow == null ? 0.35 : p.bow) : 0, b + 84);
+      parts.writeFloatLE(isLeaf ? (p.h == null ? 0.22 : p.h) : 0, b + 88);
+      parts.writeFloatLE(isLeaf ? (p.az || 0) : 0, b + 92);
+    }
+    if (handProf && !off) nProfiled++;
   });
 
   // ── poses ───────────────────────────────────────────────────────────────
@@ -236,6 +271,7 @@ export function compile(doc, res = {}) {
     info: {
       bytes: total, parts: src.length, skippedDrawingParts: skipped,
       solids: nSolids, limbs: nLimbs, hands: nHands, leaves: nLeaves,
+      profiledHands: nProfiled,
       poses: poseNames.length, beats: plan.length,
       maxVerts, maxIdx, planEnd: planLength(plan),
       sections: { header: HEADER, parts: parts.length, poses: poses.length, plan: beats.length },

@@ -207,6 +207,65 @@ pub unsafe fn mitt(tip: [f64; 3], along: [f64; 3], r: f64, nu: usize, nv: usize)
     arena::quads(base, nu, nv);
 }
 
+// ── PROFILED HAND — the same volume a solid gets, carried by a limb ───────
+// ⭐ v0.1. A `hand` used to be a mitt and NOTHING ELSE, so a foot that moved
+//   could never be the slab boot it looks like: v0 could express a boot that
+//   LOOKED right or a foot that MOVED, never both. This closes that.
+//
+//   It emits the SAME (mitt_u x mitt_v) grid, so the header's ceiling
+//   arithmetic is untouched — but it takes its radius from the PROFILE TABLE
+//   instead of a hardcoded sphere, and lathes it along the LIMB'S OWN AXIS
+//   rather than global Y.
+//
+// ⚠ THE ATTACHMENT IS BY CONSTRUCTION, NOT BY AGREEMENT. The volume has no
+//   position of its own — it is placed at the limb's resolved tip every frame —
+//   so there is no pose in which it can detach. That is the whole point: the
+//   bug it replaces was two parts agreeing about a coordinate.
+//
+//   `vv` = 0 is the ANKLE end (nearest the limb) and 1 the far end, the same
+//   direction a loft's profile runs from y0 to y1. `back` pushes the near cap
+//   BEHIND the tip, in multiples of r, so the join is buried inside the limb.
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn hand_prof(tip: [f64; 3], along: [f64; 3], r: f64,
+                        pid: u32, pk: f64, len: f64, back: f64, dw: f64,
+                        nu: usize, nv: usize) {
+    let base = arena::VN / arena::STRIDE;
+    let t = nrm(if along[0] != 0.0 || along[1] != 0.0 || along[2] != 0.0 {
+        along
+    } else { [0.0, -1.0, 0.0] });
+    // the same frame the mitt builds, so a hand does not jump when its shape
+    // changes: `va` is the ACROSS axis, `ua` the one `dw` squashes
+    let ua = nrm(cross(
+        if t[1].abs() > 0.9 { [1.0, 0.0, 0.0] } else { [0.0, 1.0, 0.0] }, t));
+    let va = cross(t, ua);
+    let l = len * r;
+    let e = 1.0 / (nv as f64 * 40.0);
+    for iv in 0..=nv {
+        let vv = iv as f64 / nv as f64;
+        let rad = prof(pid, pk, vv) * r;
+        let hi = if vv + e > 1.0 { 1.0 } else { vv + e };
+        let lo = if vv - e < 0.0 { 0.0 } else { vv - e };
+        let rp = (prof(pid, pk, hi) - prof(pid, pk, lo)) * r / (hi - lo);
+        let s = l * vv - back * r;
+        // the axial term of the normal, from the profile's own slope
+        let k = if l.abs() < 1e-9 { 0.0 } else { -rp * dw / l };
+        for iu in 0..=nu {
+            let a = (iu as f64 / nu as f64) * PI * 2.0;
+            let ca = a.cos();
+            let sa = a.sin();
+            emit(
+                [tip[0] + t[0] * s + va[0] * rad * ca + ua[0] * rad * dw * sa,
+                 tip[1] + t[1] * s + va[1] * rad * ca + ua[1] * rad * dw * sa,
+                 tip[2] + t[2] * s + va[2] * rad * ca + ua[2] * rad * dw * sa],
+                nrm([t[0] * k + ua[0] * sa + va[0] * dw * ca,
+                     t[1] * k + ua[1] * sa + va[1] * dw * ca,
+                     t[2] * k + ua[2] * sa + va[2] * dw * ca]),
+                iu as f64 / nu as f64, vv);
+        }
+    }
+    arena::quads(base, nu, nv);
+}
+
 // ── LEAF — a flat plate carrying its OWN orientation ─────────────────────
 // A leaf is not a thin solid: it is a surface that hangs off the form and bows
 // around it, and its normal is its own. ⚠ v0 has no `tilt` slot — the compiler

@@ -136,6 +136,11 @@ pub unsafe fn load(len: usize) -> i32 {
         let host = u8_at(b + 2) as usize;
         if host != 0xFF && host >= np { return -6; }
         if u8_at(b + 3) > 6 { return -6; }
+        // ⭐ v0.1 flag 4 = THE HAND CARRIES A PROFILE. It is limb-only and it
+        //   is meaningless without a hand, so both are refused here rather
+        //   than ignored — an ignored flag is a program that renders something
+        //   other than what it says.
+        if fl & 4 != 0 && (kind != 1 || fl & 2 == 0) { return -6; }
         if fl & 1 != 0 { continue; }          // `off` parts emit nothing
         match kind {
             0 => solids += 1,
@@ -373,11 +378,29 @@ pub unsafe fn build(t: f32) -> u32 {
 
             if u8_at(b + 1) & 2 != 0 {
                 let r = c.w * 2.2 * f32_at(b + 44) as f64;
+                let along = [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]];
                 let i1 = arena::IN_;
-                mesh::mitt(p2, [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]], r,
-                           mitt_u(), mitt_v());
+                // ⭐ v0.1 — a hand may carry a PROFILE, and then it is the
+                //   limb's own foot volume rather than the one hardcoded
+                //   shape v0 had. Same grid, so the ceiling does not move.
+                //   ⚠ THE FREE SLOTS ARE PER-KIND, not new fields: byte 3 and
+                //   f32 28 are the SOLID's profile slots, f32 84/88 and u32 92
+                //   the LEAF's — a limb never read any of them. The 96-byte
+                //   part record is UNCHANGED.
+                let col = if u8_at(b + 1) & 4 != 0 {
+                    mesh::hand_prof(p2, along, r,
+                                    u8_at(b + 3) as u32,        // profile
+                                    f32_at(b + 28) as f64,      // profile param
+                                    f32_at(b + 88) as f64,      // length, in r
+                                    f32_at(b + 84) as f64,      // back-offset, in r
+                                    dw, mitt_u(), mitt_v());
+                    u32_at(b + 92)                              // its own colour
+                } else {
+                    mesh::mitt(p2, along, r, mitt_u(), mitt_v());
+                    u32_at(b + 4)
+                };
                 // ⭐ a hand is ONE colour — the drawn mitts are solid, not split
-                group_push(i1, arena::IN_ - i1, u32_at(b + 4), u32_at(b + 4));
+                group_push(i1, arena::IN_ - i1, col, col);
             }
         } else if kind == 2 {
             let host = u8_at(b + 2) as usize;

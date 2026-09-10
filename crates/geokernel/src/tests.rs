@@ -245,3 +245,159 @@ fn the_arena_refuses_and_counts_instead_of_writing_past_its_end() {
         arena::OVERFLOW = 0;
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v0.1 — A HAND THAT CARRIES A PROFILE
+//
+// The bug this closes: a `solid` has a fixed x/y and no parent, and POSE_KEYS
+// is limb-only, so a boot modelled as a solid COULD NOT BE KEYED IN ANY POSE.
+// Two parts were agreeing about a coordinate and one of them moved — measured
+// as a 0.094 gap when the stomp lifted the leg.
+//
+// A hand has no position of its own. It is placed at the limb's RESOLVED tip
+// every frame, so the claim below is not "it usually stays on": it is that the
+// distance from tip to foot is a CONSTANT the cast declares, whatever the limb
+// does. That is the whole difference between attachment and agreement.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// A solid plus one limb that carries a hand. Resolutions are 4 everywhere, so
+/// every group is a 5x5 grid and ring vertex `iu` and `iu+2` are ANTIPODAL —
+/// their midpoint is the ring's axis point EXACTLY, with no closure bias.
+fn limb_with_hand(profiled: bool, prof_id: u8, back: f32, len: f32) -> Vec<u8> {
+    const N: usize = 2;
+    let g = 5 * 5;                       // grid_verts(4, 4)
+    let mut b = vec![0u8; HEADER + N * PART];
+    b[0..4].copy_from_slice(&0x304F_4547u32.to_le_bytes());
+    b[6..8].copy_from_slice(&1u16.to_le_bytes());           // loop
+    b[8..10].copy_from_slice(&(N as u16).to_le_bytes());    // n_parts
+    b[14..16].copy_from_slice(&1u16.to_le_bytes());         // n_solids
+    b[16..18].copy_from_slice(&1u16.to_le_bytes());         // n_limbs
+    b[18..20].copy_from_slice(&1u16.to_le_bytes());         // n_hands
+    for i in 22..30 { b[i] = 4; }                           // every resolution
+    b[32..36].copy_from_slice(&1.0f32.to_le_bytes());       // doc dw
+    b[36..40].copy_from_slice(&1.0f32.to_le_bytes());       // plan_end
+    b[40..44].copy_from_slice(&((3 * g) as u32).to_le_bytes());
+    b[44..48].copy_from_slice(&((3 * 4 * 4 * 6) as u32).to_le_bytes());
+    b[48..52].copy_from_slice(&(HEADER as u32).to_le_bytes());
+    let end = (HEADER + N * PART) as u32;
+    b[52..56].copy_from_slice(&end.to_le_bytes());
+    b[56..60].copy_from_slice(&end.to_le_bytes());
+    b[60..64].copy_from_slice(&end.to_le_bytes());
+
+    // part 0 — the host solid
+    let p = HEADER;
+    b[p] = 0; b[p + 2] = 0xFF; b[p + 3] = 0;
+    for (i, v) in [0.0f32, 0.1, 0.9, 0.25, 0.0, 1.0, 0.0, 1.0, 1.0].iter().enumerate() {
+        b[p + 12 + i * 4..p + 16 + i * 4].copy_from_slice(&v.to_le_bytes());
+    }
+
+    // part 1 — a limb carrying a hand, rooted at its own `from` (no host)
+    let p = HEADER + PART;
+    b[p] = 1;
+    b[p + 1] = 2 | if profiled { 4 } else { 0 };
+    b[p + 2] = 0xFF;
+    b[p + 3] = if profiled { prof_id } else { 6 };
+    //          x    y0   y1   w     profK  dw   taper seat handScale
+    for (i, v) in [0.0f32, 0.0, 0.0, 0.02, 0.35, 1.0, 0.0, 1.0, 1.0].iter().enumerate() {
+        b[p + 12 + i * 4..p + 16 + i * 4].copy_from_slice(&v.to_le_bytes());
+    }
+    let pi2 = -core::f32::consts::FRAC_PI_2;
+    for (off, e) in [(48usize, [0.10f32, pi2, 0.50]), (60, [0.10, pi2, 0.65]), (72, [0.10, pi2, 0.80])] {
+        for (i, v) in e.iter().enumerate() {
+            b[p + off + i * 4..p + off + 4 + i * 4].copy_from_slice(&v.to_le_bytes());
+        }
+    }
+    b[p + 84..p + 88].copy_from_slice(&back.to_le_bytes());   // hand back-offset, in r
+    b[p + 88..p + 92].copy_from_slice(&len.to_le_bytes());    // hand length, in r
+    b[p + 92..p + 96].copy_from_slice(&0x00FF_00u32.to_le_bytes()); // its own colour
+    b
+}
+
+/// The axis point of ring `row` in the group whose first vertex is `base`,
+/// from two ANTIPODAL vertices — exact, unlike a centroid over a closed ring.
+fn axis_point(base: usize, row: usize) -> [f64; 3] {
+    unsafe {
+        let a = (base + row * 5) * arena::STRIDE;
+        let c = (base + row * 5 + 2) * arena::STRIDE;
+        [((arena::VBUF[a] + arena::VBUF[c]) * 0.5) as f64,
+         ((arena::VBUF[a + 1] + arena::VBUF[c + 1]) * 0.5) as f64,
+         ((arena::VBUF[a + 2] + arena::VBUF[c + 2]) * 0.5) as f64]
+    }
+}
+fn dist(a: [f64; 3], b: [f64; 3]) -> f64 {
+    ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
+}
+
+const LIMB_BASE: usize = 25;   // after the solid's 5x5
+const HAND_BASE: usize = 50;   // after the limb's 5x5
+const HAND_R: f64 = 0.02 * 2.2 * 1.0;
+
+#[test]
+fn a_profiled_hand_sits_on_the_limb_tip_wherever_the_tip_GOES() {
+    let _g = guard();
+    // ⭐ THE CLAIM. The tip is moved between loads — a different reach, a
+    //   different height, a different side — and the foot's near cap stays
+    //   EXACTLY `back * r` behind it every time. Not "close": constant.
+    let back = 0.5f32;
+    for (r, y) in [(0.10f32, 0.80f32), (0.30, 0.55), (0.02, 0.98), (0.22, 0.31)] {
+        let mut b = limb_with_hand(true, 3, back, 3.0);
+        let p = HEADER + PART;
+        b[p + 72..p + 76].copy_from_slice(&r.to_le_bytes());   // to.r
+        b[p + 80..p + 84].copy_from_slice(&y.to_le_bytes());   // to.y
+        assert_eq!(load(&b), 0, "to = ({r}, {y})");
+        unsafe { geo::build(0.0) };
+        let d = dist(axis_point(LIMB_BASE, 4), axis_point(HAND_BASE, 0));
+        assert!((d - back as f64 * HAND_R).abs() < 1e-6,
+                "foot drifted to {d} from the tip at to = ({r}, {y})");
+    }
+}
+
+#[test]
+fn a_hands_length_is_the_length_the_cast_declared() {
+    let _g = guard();
+    // tube, so the profile is flat and the far cap is a real ring rather than
+    // a pole — the span from near cap to far cap must be exactly `len * r`
+    for len in [1.0f32, 2.6, 4.0] {
+        let b = limb_with_hand(true, 6, 0.5, len);
+        assert_eq!(load(&b), 0);
+        unsafe { geo::build(0.0) };
+        let span = dist(axis_point(HAND_BASE, 0), axis_point(HAND_BASE, 4));
+        assert!((span - len as f64 * HAND_R).abs() < 1e-6, "len {len} gave a span of {span}");
+    }
+}
+
+#[test]
+fn the_profile_flag_actually_changes_the_hand() {
+    let _g = guard();
+    // a flag the VM accepts and then ignores is the fail-open shape this
+    // project keeps meeting — so prove the mitt and the slab are not the same
+    let mitt = { assert_eq!(load(&limb_with_hand(false, 0, 0.85, 2.6)), 0);
+                 unsafe { geo::build(0.0); arena::VBUF[HAND_BASE * 8..(HAND_BASE + 25) * 8].to_vec() } };
+    let slab = { assert_eq!(load(&limb_with_hand(true, 3, 0.85, 2.6)), 0);
+                 unsafe { geo::build(0.0); arena::VBUF[HAND_BASE * 8..(HAND_BASE + 25) * 8].to_vec() } };
+    assert_ne!(mitt, slab, "the profile flag was accepted and then ignored");
+}
+
+#[test]
+fn a_hand_profile_is_refused_where_it_has_no_meaning() {
+    let _g = guard();
+    // on a limb with no hand
+    let mut b = limb_with_hand(true, 3, 0.5, 2.6);
+    let p = HEADER + PART;
+    b[p + 1] = 4;                                   // profiled, but no hand
+    // ⚠ n_hands is deliberately LEFT AT 1 so the ceiling still matches the
+    //   header. Zeroing it makes the load fail at -5 (the ceiling check, which
+    //   runs first) and the test would pass for the wrong reason.
+    assert_eq!(load(&b), -6, "a profiled hand on a limb that has no hand");
+
+    // on a solid
+    let mut b = limb_with_hand(true, 3, 0.5, 2.6);
+    b[HEADER + 1] = 4;
+    assert_eq!(load(&b), -6, "a profiled hand on a solid");
+
+    // and the profile id is still bounded
+    let mut b = limb_with_hand(true, 3, 0.5, 2.6);
+    b[HEADER + PART + 3] = 7;
+    assert_eq!(load(&b), -6, "profile id 7");
+}
+
