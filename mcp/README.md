@@ -49,6 +49,20 @@ happens now.
 | `geo_validate` | a program | whether the bound held at 15 times, *including outside the plan and at absurd values* |
 | `geo_bench` | a program | mean/min/p50/p95 **and the noise floor**, plus an honest speedup with its caveats attached |
 | `geo_inspect` | a `.geo` file | the 64-byte header, executed nothing |
+| `geo_look` | a program + times, or `shots` (one camera window per frame) | **Jev's** typed answers about every frame — empty? where? cut off by the frame? one object? — each beside a **code measurement of the same grid** and `agrees` |
+
+### `geo_look` — the decision layer
+Renders frames through the same rasteriser as `geo_render`, turns each into a GEO quadtree **flattened to a
+16×16 colour-word grid**, and asks [Jev](https://vercel.com/ai-gateway/models/jev) (TypeSafe's System One model,
+via the Vercel AI Gateway) typed questions about all of them in **one** call.
+- **Why a flattened grid:** measured 2026-09-26, Jev read this grid at 18/18 for placement and 20/22 for 2-D
+  grouping; it could **not** read the raw quadtree nesting (8/18).
+- **Every preset carries its own control.** The code measures the same grid, so you see Jev calibrated on your
+  own frames. First live runs: 16/16 on auto-fit frames, **22/24** on a six-shot storyboard with off-centre,
+  cut-off and empty shots — both misses on one shot, both at low confidence (0.40, 0.29). **Treat `p` < 0.6 as unsure.**
+- **Custom questions have no control** — they are a judgement. "Is this a standing figure?" came back p ≈ 0.53: a coin flip.
+- **One answer per ~5 minutes** on this account (TypeSafe's limit). A rate-limited call returns fast with the grids and `retry_in_s`.
+- The key is read from `AI_GATEWAY_API_KEY`, `GEO_JEV_ENV`, or `../jev-lab/.env.local` — never stored in this repo. `dry_run:true` needs no key.
 
 **Refusal is a correct outcome.** The compiler refuses what the ISA cannot
 express and names the key; the VM refuses a malformed program with a numbered

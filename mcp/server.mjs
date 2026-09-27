@@ -36,7 +36,8 @@ const server = new McpServer(
       'SWEEP: geo_sweep varies ONE axis into one labelled sheet with the reference pinned in ' +
       'frame, and geo_ab puts two to four finalists side by side. Refusal is a ' +
       'correct outcome: the compiler and the VM both refuse what the ISA cannot ' +
-      'express and name the key.' },
+      'express and name the key. geo_look asks Jev typed questions about frames and returns ' +
+      'each answer beside a code measurement of the same grid.' },
 );
 
 // Shared input shapes. A program arrives ONE of three ways and never two.
@@ -242,6 +243,47 @@ server.registerTool('geo_sweep', {
   },
 }, wrap(T.geo_sweep));
 
+// ═══ THE DECISION LAYER ════════════════════════════════════════════════════
+server.registerTool('geo_look', {
+  title: 'Let Jev LOOK — typed answers about frames, each checked against a measurement',
+  description:
+    'Render frames of a .geo program through the SAME rasteriser as geo_render, turn each into a ' +
+    'GEO quadtree flattened to a 16x16 colour-word grid, and ask Jev (TypeSafe System One, via the ' +
+    'Vercel AI Gateway) typed questions about ALL of them in ONE call. Measured 2026-09-26: Jev read ' +
+    'this grid at 18/18 for placement and 20/22 for 2-D grouping, with no apophenia; it could NOT read ' +
+    'the raw quadtree nesting (8/18). ' +
+    'EVERY PRESET CARRIES ITS OWN CONTROL: the same grid is measured in code and each answer comes ' +
+    'back with `measured` and `agrees`, so you see Jev calibrated on YOUR frames. Custom questions ' +
+    'have no control — they are a judgement. ' +
+    'ONE ANSWER PER ~5 MINUTES on this account: ask several frames x several questions per call. A ' +
+    'rate-limited call returns fast with the grids and retry_in_s instead of hanging. ' +
+    'With no window the frame is auto-fitted to the subject, so nothing can be off screen — pass a ' +
+    'window, or `shots` (one window per frame, a storyboard), in MESH coordinates (y_mesh = 1 - y_cast) to judge a real framing. dry_run:true sends ' +
+    'nothing and needs no key.',
+  inputSchema: {
+    ...castIn,
+    geo_path: z.string().optional().describe('Look at an already-compiled .geo binary instead of a cast.'),
+    times: z.array(z.number()).max(8).optional().describe('Plan times to look at (max 8). Default: `frames` evenly across the plan.'),
+    frames: z.number().int().min(1).max(8).optional().describe('How many evenly spaced frames when times is not given. Default 4.'),
+    window: z.array(z.number()).length(4).optional()
+      .describe('The camera: [x0,y0,x1,y1] in MESH coordinates, squared about its centre. ⚠ y_mesh = 1 - y_cast. Omit to auto-fit.'),
+    shots: z.array(z.object({ t: z.number().optional(), window: z.array(z.number()).length(4) })).min(1).max(8).optional()
+      .describe('A storyboard: one camera window per frame, each {t, window} in MESH coordinates. Replaces times/window. Use it to check framing across shots.'),
+    presets: z.array(z.enum(['empty', 'where', 'touches_edge', 'one_object'])).optional()
+      .describe('Measured questions asked of every frame. Default [empty, where, touches_edge].'),
+    questions: z.record(z.string(), z.object({
+      type: z.enum(['boolean', 'choice', 'score']),
+      instructions: z.string(),
+      criteria: z.any().optional().describe('choice: {option: description}. score: 2-10 level descriptions.'),
+    })).optional().describe('Your own questions, asked of every frame. No control exists for these. Name them lower_snake_case.'),
+    dry_run: z.boolean().optional().describe('Build the grids and measurements, send nothing. Needs no key.'),
+    include_grid: z.boolean().optional().describe('Return each 16x16 grid (the exact words Jev reads). Default false.'),
+    wait_s: z.number().int().min(0).max(120).optional().describe('How long to retry a rate-limited call before returning. Default 20.'),
+    out_path: z.string().optional().describe('Where to write the frames-beside-grids sheet. Default bench/results/look/look.png.'),
+    return_image: z.boolean().optional().describe('Inline that sheet. Default false — it is for a person.'),
+  },
+}, wrap(T.geo_look));
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
-process.stderr.write('geo-runtime MCP server ready · 8 tools · no browser required\n');
+process.stderr.write('geo-runtime MCP server ready · 9 tools · no browser required\n');

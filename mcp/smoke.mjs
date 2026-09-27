@@ -137,6 +137,21 @@ const bad = j(await client.callTool({ name: 'geo_sweep', arguments: {
 check('REFUSED, and it says why sweeping an unset key would lie',
   bad.ok === false && /wobble/.test(bad.reason ?? ''), JSON.stringify(bad).slice(0, 200));
 
+console.log('\ngeo_look — what Jev would read, dry run (no key, no network)');
+const lk = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, frames: 3, include_grid: true } }));
+check(`${lk.frames?.length} frames · ${lk.question_count} questions · ~${lk.est_tokens} tokens`,
+  lk.ok && lk.dry_run && lk.frames.length === 3 && lk.question_count === 9
+  && lk.frames.every((f) => f.grid?.length === 16 && f.grid.every((row) => row.split(' ').length === 16)),
+  JSON.stringify(lk).slice(0, 220));
+check('auto-fit: the subject is present in every frame and the measurement says where',
+  lk.frames?.every((f) => f.measured.empty === false && f.measured.where !== 'none' && f.measured.coverage > 0),
+  JSON.stringify(lk.frames?.map((f) => f.measured)));
+const far = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, frames: 1, window: [5, 5, 6, 6] } }));
+check('a camera pointed at nothing MEASURES empty — the control can change its answer',
+  far.ok && far.frames[0].measured.empty === true && far.frames[0].measured.where === 'none', JSON.stringify(far.frames?.[0]));
+const nope = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, questions: { 'Bad Name': { type: 'boolean', instructions: 'x' } } } }));
+check('a badly named custom question is REFUSED, by name', nope.ok === false && /Bad Name/.test(nope.message ?? ''), JSON.stringify(nope).slice(0, 200));
+
 await client.close();
 console.log(`\n${fails === 0 ? '✅ MCP SMOKE: ALL GREEN' : `✖ MCP SMOKE: ${fails} FAILED`}`);
 process.exit(fails === 0 ? 0 : 1);

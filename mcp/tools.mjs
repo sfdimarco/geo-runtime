@@ -276,6 +276,12 @@ export async function geo_inspect(args = {}) {
 // ⚠ This is the one place the summary rule bends, and deliberately: an image
 //   costs context. It is a RENDERED PICTURE, not a mesh buffer — pass
 //   return_image:false to get the path and the frame table alone.
+// ═══ geo_look — Jev looks at the program (see mcp/look.mjs) ═══════════════════
+export async function geo_look(args = {}) {
+  const { look } = await import('./look.mjs');
+  return look(args, { readCast, abs });
+}
+
 export async function geo_render(args = {}) {
   const { render } = await import('../tools/render.mjs');
   const gif = !!args.gif;
