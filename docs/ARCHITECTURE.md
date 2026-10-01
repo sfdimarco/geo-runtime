@@ -22,12 +22,15 @@ the same input.
 
 | | GeoV v36 (JS) | geo-runtime (Rust/WASM) | |
 |---|---|---|---|
-| build the same 5,787-vertex character | 1.960 ms | **0.195 ms** mean · 0.265 ms worst | **10.0×** |
+| build the same 5,787-vertex character | 1.960 ms | **0.195 ms** mean · 0.265 ms worst | **10.0×** ¹ |
 | the program that describes it | — | **2,320 bytes** | |
 | the mesh it expands to | — | 305 KiB · 10,600 tris | **135× expansion** |
 | kernel size | ~1 MB page | **59,732 B**, 0 imports | |
 | geometry identical to the oracle | — | 14 times along the plan, 0 index mismatches | worst Δ **8.2e-7** (6.9 ULP) |
 | linear memory growth across a run | — | **0 pages** (257 → 257) | |
+
+¹ One run. The GeoV time is a stored baseline from BENCH-002, not re-measured alongside;
+other runs have printed between 6.0× and 10.2×.
 
 The gate the build plan named ahead of time was 1.93 ms. Worst case came in at
 0.265 ms.
@@ -211,7 +214,7 @@ Measured inside the frame, over 60 frames, at t = 0:
 | submit | 0.033 | 2% |
 | **CPU total** | **1.360** | |
 
-The build got 10× faster and is now a rounding error next to the upload of the
+The build got roughly 6–10× faster (see ¹) and is now a rounding error next to the upload of the
 same 305 KiB. The next honest win is not more decode speed — it is not
 re-uploading a buffer whose topology never changes, and uploading only the
 vertex block that the pose actually moved. That work is named and not yet done.

@@ -5,7 +5,8 @@ that executes. Rust/WASM hosts it, WebGL2 displays it.
 
 **Sprint 0** · the instrument — a scoreboard exists before the engine does.
 **Sprint 1** · the slice — the dummy renders from the `.geo` binary, posed,
-at three angles, **10.2× faster than GeoV** for the same 5,787 vertices.
+at three angles, **6–10× faster than GeoV** across runs for the same 5,787 vertices
+(the GeoV time is a stored baseline — see [the numbers](#sprint-1--the-numbers)).
 
 **v0.1** · a `hand` may carry a **profile**, so a foot that moves can be the
 slab boot it looks like. Additive — no header change, no part-record change, and
@@ -69,9 +70,15 @@ the single file is a build artifact, not a constraint.
 | the mesh it expands to | 305 KiB · 5,787 verts · 10,600 tris · **135×** |
 | `geo_build` | **0.20 ms** mean, 0.21 ms worst |
 | GeoV `gcBuildForm`, same mesh | 1.960 ms |
-| | **10.2× faster**, and the gate the plan named was 1.93 ms |
+| | **10.2×** in that run, and the gate the plan named was 1.93 ms |
 | validation | identical to GeoV at 14 times along the plan · 0 index mismatches |
 | the bound | 4,000 mutated programs · 736 accepted and executed · 0 traps, 0 overruns |
+
+⚠ **The GeoV time is a stored baseline**, measured once in BENCH-002 (`BASELINE_MS` in
+`bench/sprint1.mjs`), not re-measured in the same run, so the ratio depends on the machine:
+runs have printed between 6.0× (a fresh container, 2026-09-30) and 10.2×. Timing GeoV's
+`gcBuildForm` in the same run — the validate gate already runs it for correctness — would
+make the ratio machine-independent.
 
 ⭐ **Every frame lands exactly on the header's declared ceiling** — the bound is
 derived from the part counts, so it is tight rather than padded.
@@ -150,7 +157,7 @@ harness is never told what it was built from, it asks.
 ⚠⚠ **MCP does not make tokens cheaper.** An argument is a token wherever it
 arrives. What is cheap is the *shape*: a statement in, a **summary** out. Every
 tool refuses to return a mesh buffer — `geo_build` produces 46,296 floats and
-reports eight numbers. `geo_render` is the one deliberate exception, and it
+reports a short summary (14 numbers). `geo_render` is the one deliberate exception, and it
 returns a rendered picture, never geometry.
 
 ⭐ **The five that answer in numbers could not SEE.** A wide contact sheet said

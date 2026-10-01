@@ -193,7 +193,7 @@ const builds = perf.rows.map((r) => r.buildMs);
 const meanBuild = builds.reduce((a, b) => a + b, 0) / builds.length;
 const worstBuild = Math.max(...builds);
 console.log(`\n  geo_build   mean ${meanBuild.toFixed(3)} ms · worst ${worstBuild.toFixed(3)} ms · isolated ${perf.buildOnly.toFixed(3)} ms`);
-console.log(`  GeoV        ${BASELINE_MS.toFixed(3)} ms for the same 5,787 verts (BENCH-002, this container)`);
+console.log(`  GeoV        ${BASELINE_MS.toFixed(3)} ms for the same 5,787 verts (BENCH-002, stored baseline — not re-measured in this run)`);
 console.log(`  →           ${(BASELINE_MS / meanBuild).toFixed(1)}× faster, worst case ${(BASELINE_MS / worstBuild).toFixed(1)}×`);
 
 console.log('\n════ THE DONE-WHEN ════');

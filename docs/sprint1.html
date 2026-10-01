@@ -116,7 +116,7 @@ footer{border-top:2px solid var(--tx);padding-top:15px;margin-top:12px;
 <header>
   <p class="eyebrow"><span><b>GEO-RUNTIME</b> / SPRINT 1</span><span>THE SLICE</span><span>3 SEPT 2026</span><span>9 / 9 DONE-WHEN</span></p>
   <h1>The whole character<br>is 2,320 bytes.</h1>
-  <p class="dek">Not a mesh, not a model file — a <em>program</em>. It declares its own ceiling in a 64-byte header, and a WebAssembly VM reads its bytes every frame to build 5,787 vertices straight into the layout the GPU wants. <em>Ten times faster than the engine it was ported from</em>, and vertex-for-vertex identical to it.</p>
+  <p class="dek">Not a mesh, not a model file — a <em>program</em>. It declares its own ceiling in a 64-byte header, and a WebAssembly VM reads its bytes every frame to build 5,787 vertices straight into the layout the GPU wants. <em>Six to ten times faster than the engine it was ported from, depending on the machine</em>, and vertex-for-vertex identical to it.</p>
 </header>
 
 <section>
@@ -129,7 +129,7 @@ footer{border-top:2px solid var(--tx);padding-top:15px;margin-top:12px;
     <div class="cell"><span class="k">The program</span><span class="v" style="color:var(--build)">2,320</span><span class="s">bytes · 9 parts</span></div>
     <div class="cell"><span class="k">It expands to</span><span class="v">305 KiB</span><span class="s">135× · never stored</span></div>
     <div class="cell"><span class="k">geo_build</span><span class="v" style="color:var(--build)">0.191</span><span class="s">ms · 0.205 worst</span></div>
-    <div class="cell"><span class="k">vs GeoV, same mesh</span><span class="v">10.2×</span><span class="s">1.960 ms → 0.191</span></div>
+    <div class="cell"><span class="k">vs GeoV, same mesh</span><span class="v">10.2×</span><span class="s">1.960 ms (stored baseline) → 0.191, this run</span></div>
   </div>
 </section>
 
