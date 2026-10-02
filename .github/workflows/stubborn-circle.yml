@@ -29,9 +29,13 @@ jobs:
         run: node bench/fuzz.mjs
       - name: Render recovery sweep
         run: node experiments/stubborn-circle/sweep.mjs
+      - name: Render overshoot sweep
+        run: node experiments/stubborn-circle/overshoot-sweep.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-recovery-sweep
           path: |
             experiments/stubborn-circle/recovery-sweep.png
             experiments/stubborn-circle/recovery-sweep.gif
+            experiments/stubborn-circle/overshoot-sweep.png
+            experiments/stubborn-circle/overshoot-sweep.gif
