@@ -9,6 +9,28 @@ a program you can hand a preallocated arena, and an arena that never grows is a
 
 > **Bounded FSM ⟺ zero-copy.** The same constraint from opposite ends.
 
+## v0.2 — bounded solid deformation
+
+**Additive. The 64-byte header, 96-byte part record, and 48-byte pose channel
+record are unchanged.** A solid may now carry two positive finite pose scalars:
+`scale_x` and `scale_y`.
+
+This exists for squash-and-stretch without surrendering the bound. The loft grid
+does not change resolution or topology; existing vertices move only. Therefore
+`max_verts` and `max_idx` are exactly the same as for the undeformed solid.
+
+- `scale_x` scales the solid's radial X/Z extent.
+- `scale_y` scales authored Y around the solid's own vertical centre.
+- both default to `1.0`;
+- interpolation uses the existing plan/ease path;
+- non-finite, zero, or negative values are refused;
+- the compiler and VM both refuse these bits on non-solids.
+
+Encoding is deliberately kind-specific: pose mask bits **6** and **7** indicate
+`scale_x` and `scale_y`; their f32 values borrow offsets **4** and **8** in
+the pose channel, slots that a solid never reads as limb `from` coordinates.
+No record grows.
+
 ## v0.1 — a hand may carry a profile
 
 **Additive. The header did not change, the 96-byte part record did not change,
@@ -142,8 +164,8 @@ Row-major: pose *p*, part *i* lives at `poses_off + (p·n_parts + i)·48`.
 
 | off | type | field |
 |---|---|---|
-| 0 | u8 | `mask` bit0 `from` · bit1 `mid` · bit2 `to` · bit3 `w` · bit4 `taper` · bit5 `off` |
-| 4 | f32 ×3 | `from` |
+| 0 | u8 | `mask` bit0 `from` · bit1 `mid` · bit2 `to` · bit3 `w` · bit4 `taper` · bit5 `off` · **bit6 `scale_x` · bit7 `scale_y` (solid-only, v0.2)** |
+| 4 | f32 ×3 | `from` — **for a solid in v0.2, offsets 4 and 8 are borrowed by `scale_x` / `scale_y` when bits 6/7 are set** |
 | 16 | f32 ×3 | `mid` |
 | 28 | f32 ×3 | `to` |
 | 40 | f32 | `w` |
