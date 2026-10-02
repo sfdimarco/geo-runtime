@@ -325,3 +325,28 @@ history for a body shape to function as a cue.
 
 That is the first place where this might become communication without adding a
 symbol system on top of the animation.
+
+
+## 14 · first gag
+
+13 is the first experiment where a deformation can plausibly stop being only
+physics and start functioning as a cue. So use that immediately instead of
+writing an explanation of it.
+
+This pass is a tiny causal joke:
+
+1. twice, yellow is genuinely squeezed;
+2. twice, cyan comes over after release;
+3. yellow then makes the same squeezed shape with the press wide open;
+4. cyan comes over again;
+5. yellow keeps moving left, and cyan follows all the way into the old pressure
+   station;
+6. the press closes on cyan;
+7. after release, yellow gives one tiny vertical stretch.
+
+The stretch is a callback to experiment 01. I am not labeling it "smug" in the
+animation; the test is whether history can make that read available.
+
+This is also the first place where the two bodies begin to acquire asymmetric
+roles from behavior rather than design: one exploits the learned rule; one
+honors it.
