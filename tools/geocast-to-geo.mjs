@@ -26,7 +26,7 @@ const GC_DEF = {
 const PROF = { ball: 0, pinch: 1, cone: 2, slab: 3, pear: 4, sack: 5, tube: 6 };
 
 /** Channels a v0 pose can carry. Anything else is a compile error. */
-const POSE_KEYS = new Set(['from', 'mid', 'to', 'w', 'taper', 'off', 'scale_x', 'scale_y']);
+const POSE_KEYS = new Set(['from', 'mid', 'to', 'w', 'taper', 'off', 'scale_x', 'scale_y', 'offset_x']);
 /** Kinds that produce geometry. `eyes` and `face` are DRAWING, and the engine
  *  skips them in gcBuildForm too — that is a documented skip, not a refusal. */
 const GEOM_KINDS = new Set(['solid', 'limb', 'leaf', 'patch']);
@@ -182,6 +182,15 @@ export function compile(doc, res = {}) {
   // ── poses ───────────────────────────────────────────────────────────────
   const poseNames = Object.keys(doc.poses || {});
   const poseIdx = new Map(poseNames.map((n, i) => [n, i]));
+  // Binary version 1 is opt-in and only appears when solid horizontal
+  // translation is actually authored. Programs that do not use offset_x still
+  // compile as v0 byte-for-byte.
+  const formatVersion = poseNames.some((name) => {
+    const P = doc.poses?.[name] || {};
+    return src.some((part) =>
+      part.kind === 'solid' && P[part.id]?.offset_x !== undefined
+    );
+  }) ? 1 : 0;
   const poses = Buffer.alloc(Math.max(1, poseNames.length) * src.length * CHAN);
   poseNames.forEach((name, pi) => {
     const P = doc.poses[name] || {};
@@ -200,10 +209,22 @@ export function compile(doc, res = {}) {
       if (!isSolid && (d.scale_x !== undefined || d.scale_y !== undefined)) {
         refuse(`pose "${name}" scaling non-solid part "${id}" — scale_x/scale_y are solid-only`);
       }
+      if (!isSolid && d.offset_x !== undefined) {
+        refuse(`pose "${name}" translating non-solid part "${id}" — offset_x is solid-only`);
+      }
       for (const key of ['scale_x', 'scale_y']) {
         if (d[key] !== undefined && (!Number.isFinite(+d[key]) || +d[key] <= 0)) {
           refuse(`pose "${name}" setting ${key}=${d[key]} on part "${id}" — scale must be finite and > 0`);
         }
+      }
+      if (d.offset_x !== undefined && !Number.isFinite(+d.offset_x)) {
+        refuse(`pose "${name}" setting offset_x=${d.offset_x} on part "${id}" — offset must be finite`);
+      }
+      // In v1, solid mask bit0 / from.z is repurposed as offset_x. A solid
+      // never consumed `from` in v0, but refusing the spelling removes any
+      // ambiguity at the public compiler boundary.
+      if (formatVersion >= 1 && isSolid && d.from !== undefined) {
+        refuse(`pose "${name}" setting from on translated solid "${id}" — v1 solid bit0 is offset_x`);
       }
       if (d.from) { mask |= 1;  const n = endNorm(d.from); [n.r, n.az, n.y].forEach((v, j) => poses.writeFloatLE(v, b + 4 + j * 4)); }
       if (d.mid)  { mask |= 2;  const n = endNorm(d.mid);  [n.r, n.az, n.y].forEach((v, j) => poses.writeFloatLE(v, b + 16 + j * 4)); }
@@ -216,6 +237,9 @@ export function compile(doc, res = {}) {
       // channel record and every pre-v0.2 binary remain unchanged.
       if (d.scale_x !== undefined) { mask |= 64;  poses.writeFloatLE(+d.scale_x, b + 4); }
       if (d.scale_y !== undefined) { mask |= 128; poses.writeFloatLE(+d.scale_y, b + 8); }
+      // v1, solid-only: bit0 and the otherwise-unused from.z slot carry a
+      // horizontal offset. No channel record grows.
+      if (d.offset_x !== undefined) { mask |= 1; poses.writeFloatLE(+d.offset_x, b + 12); }
       poses.writeUInt8(mask, b);
     }
   });
@@ -256,7 +280,7 @@ export function compile(doc, res = {}) {
 
   const h = Buffer.alloc(HEADER);
   h.writeUInt32LE(0x304F4547, 0);                       // "GEO0"
-  h.writeUInt16LE(0, 4);
+  h.writeUInt16LE(formatVersion, 4);
   h.writeUInt16LE(doc.loop === false ? 0 : 1, 6);
   h.writeUInt16LE(src.length, 8);
   h.writeUInt16LE(poseNames.length, 10);
@@ -287,7 +311,7 @@ export function compile(doc, res = {}) {
       solids: nSolids, limbs: nLimbs, hands: nHands, leaves: nLeaves,
       profiledHands: nProfiled,
       poses: poseNames.length, beats: plan.length,
-      maxVerts, maxIdx, planEnd: planLength(plan),
+      maxVerts, maxIdx, planEnd: planLength(plan), formatVersion,
       sections: { header: HEADER, parts: parts.length, poses: poses.length, plan: beats.length },
     },
   };
