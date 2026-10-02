@@ -82,22 +82,28 @@ pub fn prof(id: u32, k: f64, v: f64) -> f64 {
 // ── LOFT — an ellipse per height, from a traced profile ───────────────────
 #[allow(clippy::too_many_arguments)]
 pub unsafe fn loft(cx: f64, y0: f64, y1: f64, r_: f64, dw: f64,
-                   pid: u32, pk: f64, nu: usize, nv: usize) {
+                   pid: u32, pk: f64, sx: f64, sy: f64,
+                   nu: usize, nv: usize) {
     let dy = y1 - y0;
+    let cy = (y0 + y1) * 0.5;
     let base = arena::VN / arena::STRIDE;
     let e = 1.0 / (nv as f64 * 40.0);
     for iv in 0..=nv {
         let v = iv as f64 / nv as f64;
-        let r = prof(pid, pk, v) * r_;
+        let r = prof(pid, pk, v) * r_ * sx;
         let hi = if v + e > 1.0 { 1.0 } else { v + e };
         let lo = if v - e < 0.0 { 0.0 } else { v - e };
-        let rp = (prof(pid, pk, hi) - prof(pid, pk, lo)) * r_ / (hi - lo);
-        let yy = 1.0 - (y0 + dy * v);
+        let rp = (prof(pid, pk, hi) - prof(pid, pk, lo)) * r_ * sx / (hi - lo);
+        // Scale vertically ABOUT THE AUTHORED CENTRE. Topology and grid counts
+        // are unchanged; only existing vertex positions move.
+        let ya = y0 + dy * v;
+        let yy = 1.0 - (cy + (ya - cy) * sy);
+        let dys = dy * sy;
         for iu in 0..=nu {
             let a = (iu as f64 / nu as f64) * PI * 2.0;
             let s = a.sin();
             let c = a.cos();
-            let n = nrm([dw * dy * s, dw * rp, dy * c]);
+            let n = nrm([dw * dys * s, dw * rp, dys * c]);
             emit([cx + r * s, yy, r * c * dw], n, iu as f64 / nu as f64, v);
         }
     }
