@@ -146,3 +146,17 @@ The question is whether timing alone separates attitudes:
 - too late should visibly lose the clean escape.
 
 Do not name a winner in code. The animation is the measurement.
+
+
+### Visual check caught a timing lie
+
+The first 06 render exposed an authoring bug rather than a character result.
+For the 0.08 s lead lane, a shared "closed-away" beat placed the body fully
+clear at contact even though the declared travel time was 0.14 s. The picture
+made the contradiction obvious: the supposedly late dodge accelerated itself
+to satisfy the staging.
+
+The experiment now samples the body's true in-flight position at contact and
+continues the move afterward when necessary. This is exactly why the visual
+loop stays upstream of interpretation: do not write a personality explanation
+for an animation the program did not actually perform.
