@@ -268,3 +268,32 @@ variable is almost entirely relational geometry.
 
 If CENTER feels meaningfully unlike OUTSIDE, then "together" is not a costume,
 face, or line of dialogue. It is a direction in space chosen at the same time.
+
+
+## 12 · first sentence
+
+Stop asking the grammar isolated questions for one pass and try to **say
+something with it**.
+
+This is not a storyboard and it is not a final. It is the first compositional
+experiment built only from behaviors the tinker loop already made legible:
+
+pressure -> witness -> reciprocity -> memory -> shared spatial choice.
+
+The staging is cleaned up from the diagnostic tests: the bodies are genuinely
+round in front view, the pressure stations are narrower and farther apart, and
+the final inward escape aims for contact rather than the overlap that showed up
+in 11 CENTER.
+
+Sequence:
+
+1. left is squeezed; right visits after release;
+2. right is squeezed; left returns the visit;
+3. both presses close together; both bodies leave inward;
+4. the presses close on empty stations;
+5. after an empty beat, the two bodies make one small shared stretch and return
+   to round.
+
+The last gesture deliberately reaches all the way back to experiment 01. A
+motion that began as a question about one object's material recovery is now
+being tested as punctuation between two bodies.
