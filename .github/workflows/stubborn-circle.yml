@@ -37,13 +37,7 @@ jobs:
         run: node experiments/stubborn-circle/press-ab.mjs
       - uses: actions/upload-artifact@v4
         with:
-          name: stubborn-circle-recovery-sweep
+          name: stubborn-circle-lab
           path: |
-            experiments/stubborn-circle/recovery-sweep.png
-            experiments/stubborn-circle/recovery-sweep.gif
-            experiments/stubborn-circle/overshoot-sweep.png
-            experiments/stubborn-circle/overshoot-sweep.gif
-            experiments/stubborn-circle/afterthought-sweep.png
-            experiments/stubborn-circle/afterthought-sweep.gif
-            experiments/stubborn-circle/press-ab.png
-            experiments/stubborn-circle/press-ab.gif
+            experiments/stubborn-circle/*.png
+            experiments/stubborn-circle/*.gif
