@@ -13,6 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCast } from '../../bench/kernel.mjs';
 import { canvasOf, drawCel, encodePNG, text } from '../../tools/render.mjs';
+import { encodeGIF } from '../../tools/gif.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const base = JSON.parse(fs.readFileSync(path.join(HERE, 'target.geocast'), 'utf8'));
@@ -64,12 +65,43 @@ for (let row = 0; row < SAMPLE_DT.length; row++) {
 
 const out = path.join(HERE, 'recovery-sweep.png');
 fs.writeFileSync(out, encodePNG(img, W, H));
+
+// Motion is the actual question, so make one animated strip too. Every column
+// shares the same clock. The animation begins just before compression finishes
+// and runs long enough for the slowest recovery to settle.
+const GW = CW * RECOVERY.length, GH = CH + LABEL;
+const fps = 20;
+const t0 = 0.68, t1 = 1.52;
+const n = Math.ceil((t1 - t0) * fps);
+const gifFrames = [];
+for (let f = 0; f < n; f++) {
+  const t = t0 + (f / (n - 1)) * (t1 - t0);
+  const frame = canvasOf(GW, GH);
+  for (let col = 0; col < variants.length; col++) {
+    const { seconds, K } = variants[col];
+    const b = K.build(t);
+    if (b.overflow) throw new Error(`overflow at recovery=${seconds}, t=${t}`);
+    const ox = col * CW;
+    drawCel(frame, GW, ox, 0, CW, CH, K.meshView(), K.idxView(), b.stride, BOX);
+    text(frame, GW, `R ${seconds.toFixed(2)}S`, ox + 16, CH + 5, 2);
+  }
+  gifFrames.push(frame);
+}
+const gifOut = path.join(HERE, 'recovery-sweep.gif');
+fs.writeFileSync(gifOut, encodeGIF(gifFrames, GW, GH, {
+  delay: Math.round(100 / fps),
+  loop: 0
+}));
+
 console.log(JSON.stringify({
   out,
+  gif: gifOut,
   axis: 'recovery_seconds',
   values: RECOVERY,
   sample_after_release: SAMPLE_DT,
   ceiling: variants[0].header.maxVerts,
   width: W,
-  height: H
+  height: H,
+  gif_frames: gifFrames.length,
+  gif_fps: fps
 }, null, 2));
