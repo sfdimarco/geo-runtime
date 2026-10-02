@@ -116,6 +116,22 @@ export class Kernel {
     return new Uint32Array(this.X.memory.buffer, this.X.idx_ptr(), this.X.idx_len());
   }
 
+  /** Per-part index spans: start, count, col_a, col_b — 4 u32 each.
+   *  The browser draw path already consumes this table. Exposing the same view
+   *  here lets the software renderer show authored colour without inventing a
+   *  second scene description. */
+  groupsView() {
+    return new Uint32Array(
+      this.X.memory.buffer,
+      this.X.groups_ptr(),
+      this.X.groups_len() * 4,
+    );
+  }
+
+  groupCount() {
+    return this.X.groups_len();
+  }
+
   /**
    * Time one build. Reports the noise floor beside the mean, because a delta
    * smaller than the floor is not a result.
