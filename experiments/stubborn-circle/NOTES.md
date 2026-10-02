@@ -297,3 +297,31 @@ Sequence:
 The last gesture deliberately reaches all the way back to experiment 01. A
 motion that began as a question about one object's material recovery is now
 being tested as punctuation between two bodies.
+
+
+## 13 · a shape becomes a signal
+
+12 suggests the grammar can carry a short sentence. The next thing I want to
+know is whether one character can deliberately reuse a piece of that grammar.
+
+Teach one association twice:
+
+**left gets squeezed -> after release, right comes over.**
+
+Then repeat the right body's visit a third time while changing only what came
+before it:
+
+- **REAL** — the press truly squeezes the left body;
+- **SELF** — the press stays open and the left body makes the squeezed shape by
+  itself;
+- **NONE** — the press stays open and the left body remains round.
+
+RIGHT's response is identical in all three lanes.
+
+The interesting comparison is SELF vs NONE. If SELF gives the later visit a
+sense of cause while NONE makes the same visit feel arbitrary, then squash has
+stopped being only an effect of pressure. The characters have learned enough
+history for a body shape to function as a cue.
+
+That is the first place where this might become communication without adding a
+symbol system on top of the animation.
