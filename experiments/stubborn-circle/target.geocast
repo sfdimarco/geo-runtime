@@ -1,5 +1,4 @@
 {
-  "_status": "INTENTIONAL RED-GATE DOCUMENT — solid pose deformation is not valid in .geo v0.1",
   "_experiment": "stubborn-circle-01",
   "name": "stubborn-circle-01",
   "v": 2,
@@ -16,18 +15,14 @@
       "body": { "scale_x": 1.0, "scale_y": 1.0 }
     },
     "squeezed": {
-      "body": { "scale_x": 1.28, "scale_y": 0.61 }
-    },
-    "proud": {
-      "body": { "scale_x": 0.96, "scale_y": 1.09 }
+      "body": { "scale_x": 1.2804, "scale_y": 0.61 }
     }
   },
   "plan": [
     { "pose": "round", "t": 0.0 },
     { "pose": "squeezed", "t": 0.72 },
     { "pose": "squeezed", "t": 0.92 },
-    { "pose": "proud", "t": 1.03 },
-    { "pose": "round", "t": 1.16 }
+    { "pose": "round", "t": 1.06 }
   ],
   "loop": false,
   "parts": [
