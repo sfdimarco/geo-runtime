@@ -249,3 +249,22 @@ supply the missing movement as an expectation. If so, *not moving* has become a
 legible choice.
 
 That would mean the runtime can make absence visible by giving time a memory.
+
+
+## 11 · joint choice
+
+10 makes a peculiar thing available: after repetition, the audience can carry a
+rule that is not drawn anywhere.
+
+Now put both bodies under the same threat at the same time, after the reciprocal
+history has already been established.
+
+- **STAY** — both remain and both deform.
+- **CENTER** — both leave their stations toward the shared middle.
+- **OUTSIDE** — both leave away from each other.
+
+CENTER and OUTSIDE have the same mechanical success: two empty presses. The
+variable is almost entirely relational geometry.
+
+If CENTER feels meaningfully unlike OUTSIDE, then "together" is not a costume,
+face, or line of dialogue. It is a direction in space chosen at the same time.

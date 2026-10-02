@@ -50,6 +50,8 @@ jobs:
         run: node experiments/stubborn-circle/role-reversal.mjs
       - name: Render expectation/omission test
         run: node experiments/stubborn-circle/expectation-ab.mjs
+      - name: Render joint-choice test
+        run: node experiments/stubborn-circle/joint-choice.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab
