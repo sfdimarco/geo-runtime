@@ -26,7 +26,7 @@ const GC_DEF = {
 const PROF = { ball: 0, pinch: 1, cone: 2, slab: 3, pear: 4, sack: 5, tube: 6 };
 
 /** Channels a v0 pose can carry. Anything else is a compile error. */
-const POSE_KEYS = new Set(['from', 'mid', 'to', 'w', 'taper', 'off']);
+const POSE_KEYS = new Set(['from', 'mid', 'to', 'w', 'taper', 'off', 'scale_x', 'scale_y']);
 /** Kinds that produce geometry. `eyes` and `face` are DRAWING, and the engine
  *  skips them in gcBuildForm too — that is a documented skip, not a refusal. */
 const GEOM_KINDS = new Set(['solid', 'limb', 'leaf', 'patch']);
@@ -196,12 +196,26 @@ export function compile(doc, res = {}) {
           refuse(`pose "${name}" setting "${key}" on part "${id}" — v0 poses carry ${[...POSE_KEYS].join(', ')}`);
         }
       }
+      const isSolid = src[i].kind === 'solid';
+      if (!isSolid && (d.scale_x !== undefined || d.scale_y !== undefined)) {
+        refuse(`pose "${name}" scaling non-solid part "${id}" — scale_x/scale_y are solid-only`);
+      }
+      for (const key of ['scale_x', 'scale_y']) {
+        if (d[key] !== undefined && (!Number.isFinite(+d[key]) || +d[key] <= 0)) {
+          refuse(`pose "${name}" setting ${key}=${d[key]} on part "${id}" — scale must be finite and > 0`);
+        }
+      }
       if (d.from) { mask |= 1;  const n = endNorm(d.from); [n.r, n.az, n.y].forEach((v, j) => poses.writeFloatLE(v, b + 4 + j * 4)); }
       if (d.mid)  { mask |= 2;  const n = endNorm(d.mid);  [n.r, n.az, n.y].forEach((v, j) => poses.writeFloatLE(v, b + 16 + j * 4)); }
       if (d.to)   { mask |= 4;  const n = endNorm(d.to);   [n.r, n.az, n.y].forEach((v, j) => poses.writeFloatLE(v, b + 28 + j * 4)); }
       if (d.w !== undefined)     { mask |= 8;  poses.writeFloatLE(+d.w, b + 40); }
       if (d.taper !== undefined) { mask |= 16; poses.writeFloatLE(+d.taper, b + 44); }
       if (d.off !== undefined)   { mask |= 32; if (d.off) mask |= 0; }
+      // v0.2: solid-only scale channels borrow two otherwise-unused values in
+      // the pose's `from` vec3. Bits 6/7 distinguish them, so the 48-byte
+      // channel record and every pre-v0.2 binary remain unchanged.
+      if (d.scale_x !== undefined) { mask |= 64;  poses.writeFloatLE(+d.scale_x, b + 4); }
+      if (d.scale_y !== undefined) { mask |= 128; poses.writeFloatLE(+d.scale_y, b + 8); }
       poses.writeUInt8(mask, b);
     }
   });
