@@ -126,3 +126,23 @@ The first use is a tiny causal joke:
 The interesting question is no longer "does this look alive?" It is whether
 **history changes blocking**. That is much closer to storytelling: the meaning
 of a place in the frame depends on what happened earlier.
+
+
+## 06 · decision latency
+
+Spatial choice produces a new kind of read immediately: the second press can
+close on empty space. The subject is no longer only reacting to force; it can
+change the blocking of the event.
+
+Now hold the destination and travel time fixed and sweep **when it commits**.
+
+Dodge lead before contact: 0.36, 0.28, 0.20, 0.14, 0.08 seconds.
+Travel time: 0.14 seconds.
+
+The question is whether timing alone separates attitudes:
+
+- very early may feel cautious or experienced;
+- near-contact may feel confident, playful, or reckless;
+- too late should visibly lose the clean escape.
+
+Do not name a winner in code. The animation is the measurement.
