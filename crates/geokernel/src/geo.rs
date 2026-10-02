@@ -155,6 +155,26 @@ pub unsafe fn load(len: usize) -> i32 {
     for k in 0..nb {
         if u16_at(lo + k * BEAT) as usize >= nq.max(1) { return -6; }
     }
+    // v0.2 scale bits are solid-only. The compiler enforces finite positive
+    // values; the VM repeats the check because the binary is a public boundary.
+    for p in 0..nq {
+        for i in 0..np {
+            let cb = so + (p * np + i) * CHAN;
+            let mask = u8_at(cb);
+            if mask & 0xC0 != 0 {
+                let pb = po + i * PART;
+                if u8_at(pb) != 0 { return -6; }
+                if mask & 64 != 0 {
+                    let v = f32_at(cb + 4);
+                    if !v.is_finite() || v <= 0.0 { return -6; }
+                }
+                if mask & 128 != 0 {
+                    let v = f32_at(cb + 8);
+                    if !v.is_finite() || v <= 0.0 { return -6; }
+                }
+            }
+        }
+    }
 
     LOADED = true;
     0
@@ -193,6 +213,8 @@ struct Chan {
     to: [f64; 3],
     w: f64,
     taper: f64,
+    sx: f64,
+    sy: f64,
     off: bool,
 }
 
@@ -211,6 +233,8 @@ unsafe fn resolve(i: usize, pa: usize, pb: usize, w: f64) -> Chan {
         to: [f32_at(b + 72) as f64, f32_at(b + 76) as f64, f32_at(b + 80) as f64],
         w: f32_at(b + 24) as f64,
         taper: f32_at(b + 36) as f64,
+        sx: 1.0,
+        sy: 1.0,
         off: u8_at(b + 1) & 1 != 0,
     };
     if n_poses() == 0 { return c; }
@@ -248,6 +272,18 @@ unsafe fn resolve(i: usize, pa: usize, pb: usize, w: f64) -> Chan {
         let va = if ma & 16 != 0 { f32_at(ca + 44) as f64 } else { c.taper };
         let vb = if mb & 16 != 0 { f32_at(cb + 44) as f64 } else { c.taper };
         c.taper = va + (vb - va) * w;
+    }
+    // v0.2: solid-only scale channels. They borrow two values from the pose
+    // `from` slots, guarded by bits 6/7, so CHAN remains 48 bytes.
+    if ma & 64 != 0 || mb & 64 != 0 {
+        let va = if ma & 64 != 0 { f32_at(ca + 4) as f64 } else { c.sx };
+        let vb = if mb & 64 != 0 { f32_at(cb + 4) as f64 } else { c.sx };
+        c.sx = va + (vb - va) * w;
+    }
+    if ma & 128 != 0 || mb & 128 != 0 {
+        let va = if ma & 128 != 0 { f32_at(ca + 8) as f64 } else { c.sy };
+        let vb = if mb & 128 != 0 { f32_at(cb + 8) as f64 } else { c.sy };
+        c.sy = va + (vb - va) * w;
     }
     // `off` is not a number: it flips at the halfway point, like gcPoseLerp's
     // non-numeric branch
@@ -345,6 +381,7 @@ pub unsafe fn build(t: f32) -> u32 {
             f32_at(b + 32) as f64,       // dw
             u8_at(b + 3) as u32,         // prof id
             f32_at(b + 28) as f64,       // prof param
+            c.sx, c.sy,                   // v0.2 bounded solid deformation
             loft_u(), loft_v(),
         );
         group_push(i0, arena::IN_ - i0, u32_at(b + 4), u32_at(b + 8));
@@ -432,9 +469,19 @@ unsafe fn host_profile(host: usize, pa: usize, pb: usize, w: f64) -> mesh::Host 
     let c = resolve(host, pa, pb, w);
     mesh::Host {
         x: f32_at(b + 12) as f64,
-        y0: f32_at(b + 16) as f64,
-        y1: f32_at(b + 20) as f64,
-        w: c.w,
+        y0: {
+            let y0 = f32_at(b + 16) as f64;
+            let y1 = f32_at(b + 20) as f64;
+            let cy = (y0 + y1) * 0.5;
+            cy + (y0 - cy) * c.sy
+        },
+        y1: {
+            let y0 = f32_at(b + 16) as f64;
+            let y1 = f32_at(b + 20) as f64;
+            let cy = (y0 + y1) * 0.5;
+            cy + (y1 - cy) * c.sy
+        },
+        w: c.w * c.sx,
         dw: f32_at(b + 32) as f64,
         prof: u8_at(b + 3) as u32,
         k: f32_at(b + 28) as f64,
