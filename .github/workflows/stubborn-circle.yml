@@ -58,6 +58,8 @@ jobs:
         run: node experiments/stubborn-circle/signal-ab.mjs
       - name: Render first causal gag
         run: node experiments/stubborn-circle/gag-01.mjs
+      - name: Render second callback gag
+        run: node experiments/stubborn-circle/gag-02.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab

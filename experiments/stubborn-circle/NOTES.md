@@ -350,3 +350,30 @@ animation; the test is whether history can make that read available.
 This is also the first place where the two bodies begin to acquire asymmetric
 roles from behavior rather than design: one exploits the learned rule; one
 honors it.
+
+
+## 15 · the same trick, once too often
+
+14 is the first thing in the lab that behaves like a gag rather than a diagram.
+So the next question is the most cartoonish one available: **what happens if
+yellow tries it again?**
+
+Replay the essential trap once. Cyan follows all the way into the station and
+gets squeezed.
+
+Reset.
+
+Yellow performs the same counterfeit squash. Cyan starts the familiar visit but
+stops just short. Yellow commits to the same leftward exit anyway. The press
+closes on empty space.
+
+Then cyan performs the tiny vertical stretch that yellow used as punctuation
+after the first trap.
+
+No new primitive is involved. The experiment is entirely about whether history
+can make an incomplete movement — stopping before the expected destination —
+read as knowledge, and whether borrowing somebody else's gesture can feel like
+a reply.
+
+This is the first moment where their asymmetry begins to feel reciprocal rather
+than fixed: the one who got fooled can change the game.
