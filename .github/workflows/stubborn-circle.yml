@@ -48,6 +48,8 @@ jobs:
         run: node experiments/stubborn-circle/reciprocity-ab.mjs
       - name: Render role-reversal callback
         run: node experiments/stubborn-circle/role-reversal.mjs
+      - name: Render expectation/omission test
+        run: node experiments/stubborn-circle/expectation-ab.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab

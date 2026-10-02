@@ -224,3 +224,28 @@ meaning is being carried by a callback to something the audience saw earlier.
 
 That is a storytelling primitive I care about: **repetition changes the meaning
 of the same motion**.
+
+
+## 10 · expectation makes absence visible
+
+The role-reversal test is the first one that starts to feel structurally like a
+story rather than a reaction study. A movement can echo a movement from much
+earlier in the piece.
+
+So establish the rule twice before asking anything new:
+
+1. left is squeezed -> right visits;
+2. right is squeezed -> left visits.
+
+Then squeeze left again.
+
+- **AFTER** repeats the established response after release;
+- **EARLY** starts the visit while the squeeze is still happening;
+- **NONE** stays where it is.
+
+The interesting possibility is NONE. In isolation it contains no performance at
+all. But after two demonstrations of a reciprocal pattern, the audience may
+supply the missing movement as an expectation. If so, *not moving* has become a
+legible choice.
+
+That would mean the runtime can make absence visible by giving time a memory.
