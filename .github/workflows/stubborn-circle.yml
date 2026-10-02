@@ -35,6 +35,8 @@ jobs:
         run: node experiments/stubborn-circle/afterthought-sweep.mjs
       - name: Render pressure A/B
         run: node experiments/stubborn-circle/press-ab.mjs
+      - name: Render memory A/B
+        run: node experiments/stubborn-circle/memory-ab.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab
