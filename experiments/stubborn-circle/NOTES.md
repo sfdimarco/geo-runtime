@@ -50,3 +50,22 @@ Hypothesis:
 
 This is the first experiment aimed explicitly at finding the boundary between
 **material behavior** and **character behavior**.
+
+
+## 02 · visible cause
+
+The first three tests isolate the subject. That is useful for measurement, but
+it leaves a loophole: a viewer can explain every motion as material physics
+because nothing on screen visibly *did* anything to the circle.
+
+The next test adds two simple paddles. They close, squash the circle, and leave.
+Then two performances are shown side by side:
+
+- no pause before the 0.09 proud gesture;
+- a 0.14 s pause at perfect roundness before the identical gesture.
+
+Nothing else changes.
+
+This is deliberately a tiny cartoon rather than another abstract material test.
+The question is whether **causal staging + a beat of empty time** is enough to
+turn the exact same shape change into a reaction.
