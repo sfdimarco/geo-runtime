@@ -160,3 +160,22 @@ The experiment now samples the body's true in-flight position at contact and
 continues the move afterward when necessary. This is exactly why the visual
 loop stays upstream of interpretation: do not write a personality explanation
 for an animation the program did not actually perform.
+
+
+## 07 · a witness
+
+The spatial experiments make one thing clear: a character can remember an
+event by changing where it puts itself the next time.
+
+The next question is social.
+
+Add a second, untouched body. Squeeze only the first. Once the mechanism is
+fully gone and there has been an empty beat, the witness does one of three
+things: **STILL**, **CLOSER**, or **AWAY**.
+
+No eyes. No arms. No dialogue. The witness never gets touched.
+
+If those variants produce different reads, relationship is emerging from
+blocking and timing alone. That would be a larger step than finding an
+individual temperament, because the meaning is no longer contained in either
+shape. It exists between them.
