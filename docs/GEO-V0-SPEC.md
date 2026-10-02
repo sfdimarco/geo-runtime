@@ -9,6 +9,31 @@ a program you can hand a preallocated arena, and an arena that never grows is a
 
 > **Bounded FSM ⟺ zero-copy.** The same constraint from opposite ends.
 
+## v1 — bounded solid horizontal translation
+
+**Opt-in. Programs without `offset_x` still compile as binary version 0.**
+The 64-byte header, 96-byte part record, and 48-byte pose channel record remain
+the same size.
+
+A solid pose may add:
+
+- `offset_x`: finite horizontal displacement from the solid's authored `x`.
+
+The feature is topology-neutral: translation moves existing vertices only, so
+the declared `max_verts` and `max_idx` ceilings are unchanged.
+
+Encoding:
+
+- header u16 at byte 4 = **1** when `offset_x` is used;
+- for a **solid only**, pose mask bit **0** means `offset_x`;
+- its f32 scalar is stored at pose-channel offset **12** (the old `from.z`
+  slot, which a solid never consumed);
+- v1 compiler input therefore refuses `from` on solids to avoid an ambiguous
+  spelling;
+- non-solid bit0 semantics remain the existing `from` vector.
+
+The VM accepts versions 0 and 1. Version 0 semantics are unchanged.
+
 ## v0.2 — bounded solid deformation
 
 **Additive. The 64-byte header, 96-byte part record, and 48-byte pose channel
