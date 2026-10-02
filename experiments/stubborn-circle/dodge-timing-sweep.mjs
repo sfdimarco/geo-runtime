@@ -68,13 +68,19 @@ const makeDoc = (lead) => {
   const start = CONTACT - lead;
   const end = start + MOVE;
 
+  // Where the body ACTUALLY is when contact happens. This matters for the
+  // late lanes: the visual pass caught an earlier version snapping them fully
+  // clear at CONTACT, accidentally shortening the fixed 0.14 s move.
+  const contactProgress = Math.max(0, Math.min(1, (CONTACT - start) / MOVE));
+  const contactX = DODGE_X * contactProgress;
+
   const poseEntries = [
     ['openRound', { body: body(1,0), ...bars(0.18,0.82) }],
     ['closedSquash', { body: body(0.61,0), ...bars(0.35,0.65) }],
     makePose('approach', 1.20, 0),
     makePose('dodgeStart', start, 0),
     makePose('dodgeEnd', end, DODGE_X),
-    makePose('closedAway', CONTACT, DODGE_X),
+    makePose('atContact', CONTACT, contactX),
     makePose('heldAway', 1.72, DODGE_X),
     makePose('openAway', 1.86, DODGE_X),
     ['openHome', { body: body(1,0), ...bars(0.18,0.82) }],
@@ -88,7 +94,7 @@ const makeDoc = (lead) => {
     beat('approach', 1.20),
     beat('dodgeStart', start),
     beat('dodgeEnd', end),
-    beat('closedAway', CONTACT),
+    beat('atContact', CONTACT),
     beat('heldAway', 1.72),
     beat('openAway', 1.86),
     beat('openHome', 2.14),
