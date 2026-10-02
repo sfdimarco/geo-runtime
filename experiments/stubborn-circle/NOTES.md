@@ -97,3 +97,32 @@ A useful failure would be equally informative: if all three still read as
 arbitrary elasticity, then shape change alone may not carry expectation strongly
 enough, and the next creative need is likely **translation** — the ability for a
 solid to lean, dodge, approach, or choose a place in the frame.
+
+
+## 05 · spatial choice
+
+The memory test did not fail. BRACE and YIELD separate visibly before the
+second contact: the same environment can make the subject appear to anticipate
+what is about to happen.
+
+That creates the next constraint.
+
+With scale alone, memory can only change **how the subject receives the event**.
+It cannot change whether the event happens. The character can brace or yield,
+but it cannot leave.
+
+So the creative need now asks for one new spatial primitive:
+`offset_x` on solids. It is deliberately only horizontal translation. No
+general transform stack, no arbitrary matrix, no new topology.
+
+The first use is a tiny causal joke:
+
+1. the circle is squeezed once;
+2. the same paddles approach again;
+3. STAY remains centered and is squeezed;
+4. DODGE moves sideways first;
+5. the paddles close on empty space.
+
+The interesting question is no longer "does this look alive?" It is whether
+**history changes blocking**. That is much closer to storytelling: the meaning
+of a place in the frame depends on what happened earlier.
