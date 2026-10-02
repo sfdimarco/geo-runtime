@@ -31,6 +31,8 @@ jobs:
         run: node experiments/stubborn-circle/sweep.mjs
       - name: Render overshoot sweep
         run: node experiments/stubborn-circle/overshoot-sweep.mjs
+      - name: Render afterthought sweep
+        run: node experiments/stubborn-circle/afterthought-sweep.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-recovery-sweep
@@ -39,3 +41,5 @@ jobs:
             experiments/stubborn-circle/recovery-sweep.gif
             experiments/stubborn-circle/overshoot-sweep.png
             experiments/stubborn-circle/overshoot-sweep.gif
+            experiments/stubborn-circle/afterthought-sweep.png
+            experiments/stubborn-circle/afterthought-sweep.gif
