@@ -1,3 +1,4 @@
+# Visual lab: every creative hypothesis must survive the same build/fuzz/render path.
 name: stubborn-circle experiment
 
 on:
