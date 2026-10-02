@@ -377,3 +377,27 @@ a reply.
 
 This is the first moment where their asymmetry begins to feel reciprocal rather
 than fixed: the one who got fooled can change the game.
+
+
+## 16 · teach the trick back
+
+15 shows that cyan can stop short of a repeated trap. The more interesting
+possibility is that learning does not have to remain defensive.
+
+Give them two symmetric pressure stations.
+
+Yellow performs the fake-squash / follow-me / exit / squeeze routine on cyan.
+Reset the board.
+
+Then cyan performs the exact same procedure in mirror image at the other
+station, and yellow follows it all the way in.
+
+The second half introduces no new action. Its meaning should come from
+**recognition**: the audience has already learned the procedure once and now
+sees the other character reproduce it.
+
+After yellow gets squeezed, cyan borrows the same tiny vertical punctuation
+yellow used after the first trap.
+
+If this reads, imitation itself is becoming a character action. They are no
+longer just reacting to events; they can copy one another's strategies.
