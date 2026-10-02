@@ -69,3 +69,31 @@ Nothing else changes.
 This is deliberately a tiny cartoon rather than another abstract material test.
 The question is whether **causal staging + a beat of empty time** is enough to
 turn the exact same shape change into a reaction.
+
+
+## 04 · memory without a face
+
+The answer-direction test suggests a stronger question than "which gesture has
+more attitude?"
+
+Can the subject appear to **remember**?
+
+The setup repeats the exact same pressure event twice. The first event is
+identical across all variants. On the second approach, before the paddles touch:
+
+- **NAIVE** stays round.
+- **BRACE** grows taller, into the direction of the incoming pressure.
+- **YIELD** pre-squashes, beginning the demanded deformation voluntarily.
+
+The second squeeze itself is identical again.
+
+This matters because the character claim no longer lives in a single motion.
+It lives in the relationship between two moments separated in time. If a viewer
+reads BRACE as defiance or YIELD as apprehension/cooperation, then the runtime is
+supporting a primitive form of narrative memory without adding a face, symbol,
+or explicit state label.
+
+A useful failure would be equally informative: if all three still read as
+arbitrary elasticity, then shape change alone may not carry expectation strongly
+enough, and the next creative need is likely **translation** — the ability for a
+solid to lean, dodge, approach, or choose a place in the frame.
