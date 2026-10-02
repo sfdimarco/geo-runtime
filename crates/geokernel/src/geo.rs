@@ -66,6 +66,7 @@ hdr_u8!(mitt_u, 26);
 hdr_u8!(mitt_v, 27);
 hdr_u8!(leaf_u, 28);
 hdr_u8!(leaf_v, 29);
+#[inline(always)] unsafe fn format_version() -> u16 { u16_at(4) }
 #[inline(always)] unsafe fn flags() -> u16 { u16_at(6) }
 #[inline(always)] unsafe fn doc_dw() -> f32 { f32_at(32) }
 #[inline(always)] unsafe fn plan_end() -> f32 { f32_at(36) }
@@ -98,7 +99,7 @@ pub unsafe fn load(len: usize) -> i32 {
     BIN_LEN = len;
     if len < HEADER { return -1; }
     if u32_at(0) != MAGIC { return -2; }
-    if u16_at(4) != 0 { return -3; }
+    if format_version() > 1 { return -3; }
 
     let np = n_parts();
     let nq = n_poses();
@@ -173,6 +174,16 @@ pub unsafe fn load(len: usize) -> i32 {
                     if !v.is_finite() || v <= 0.0 { return -6; }
                 }
             }
+            // v1: on a solid only, mask bit0 means horizontal offset and the
+            // scalar lives in the old from.z slot. Finite is enough for memory
+            // safety because translation never changes topology or counts.
+            if format_version() >= 1 && mask & 1 != 0 {
+                let pb = po + i * PART;
+                if u8_at(pb) == 0 {
+                    let v = f32_at(cb + 12);
+                    if !v.is_finite() { return -6; }
+                }
+            }
         }
     }
 
@@ -215,6 +226,7 @@ struct Chan {
     taper: f64,
     sx: f64,
     sy: f64,
+    ox: f64,
     off: bool,
 }
 
@@ -235,6 +247,7 @@ unsafe fn resolve(i: usize, pa: usize, pb: usize, w: f64) -> Chan {
         taper: f32_at(b + 36) as f64,
         sx: 1.0,
         sy: 1.0,
+        ox: 0.0,
         off: u8_at(b + 1) & 1 != 0,
     };
     if n_poses() == 0 { return c; }
@@ -259,9 +272,16 @@ unsafe fn resolve(i: usize, pa: usize, pb: usize, w: f64) -> Chan {
             }
         };
     }
-    vec3!(1, 4, from);
+    let solid_v1 = format_version() >= 1 && u8_at(b) == 0;
+    if !solid_v1 { vec3!(1, 4, from); }
     vec3!(2, 16, mid);
     vec3!(4, 28, to);
+
+    if solid_v1 && (ma & 1 != 0 || mb & 1 != 0) {
+        let va = if ma & 1 != 0 { f32_at(ca + 12) as f64 } else { c.ox };
+        let vb = if mb & 1 != 0 { f32_at(cb + 12) as f64 } else { c.ox };
+        c.ox = va + (vb - va) * w;
+    }
 
     if ma & 8 != 0 || mb & 8 != 0 {
         let va = if ma & 8 != 0 { f32_at(ca + 40) as f64 } else { c.w };
@@ -374,7 +394,7 @@ pub unsafe fn build(t: f32) -> u32 {
         if c.off { continue; }
         let i0 = arena::IN_;
         mesh::loft(
-            f32_at(b + 12) as f64,       // x
+            f32_at(b + 12) as f64 + c.ox, // x + v1 solid offset
             f32_at(b + 16) as f64,       // y0
             f32_at(b + 20) as f64,       // y1
             c.w,                         // w  (radius)
@@ -468,7 +488,7 @@ unsafe fn host_profile(host: usize, pa: usize, pb: usize, w: f64) -> mesh::Host 
     let b = parts_off() + host * PART;
     let c = resolve(host, pa, pb, w);
     mesh::Host {
-        x: f32_at(b + 12) as f64,
+        x: f32_at(b + 12) as f64 + c.ox,
         y0: {
             let y0 = f32_at(b + 16) as f64;
             let y1 = f32_at(b + 20) as f64;
