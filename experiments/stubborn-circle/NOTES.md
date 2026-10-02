@@ -203,3 +203,24 @@ would get ahead of the picture. The narrower question is whether a second move
 can read as an **answer to the first move**.
 
 If it does, this little grammar has dialogue before it has language.
+
+
+## 09 · role reversal / callback
+
+08 asks whether one movement can answer another. 09 stretches that across a
+larger piece of time.
+
+There are now two pressure stations and two bodies. First the left body is
+squeezed; after the mechanism opens, the right body leaves its own station,
+moves toward it, waits, then returns. Later the roles reverse and the right body
+is squeezed.
+
+Only then do we branch the left body's response: **STILL**, **TOWARD**, or
+**AWAY**.
+
+Nothing in the last movement is visually novel. That is the point. If TOWARD
+feels different now than it did in an isolated translation test, the extra
+meaning is being carried by a callback to something the audience saw earlier.
+
+That is a storytelling primitive I care about: **repetition changes the meaning
+of the same motion**.

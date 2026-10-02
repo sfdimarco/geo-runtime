@@ -46,6 +46,8 @@ jobs:
         run: node experiments/stubborn-circle/witness-ab.mjs
       - name: Render reciprocity A/B
         run: node experiments/stubborn-circle/reciprocity-ab.mjs
+      - name: Render role-reversal callback
+        run: node experiments/stubborn-circle/role-reversal.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab
