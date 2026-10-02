@@ -43,6 +43,8 @@ jobs:
         run: node experiments/stubborn-circle/dodge-timing-sweep.mjs
       - name: Render witness relationship A/B
         run: node experiments/stubborn-circle/witness-ab.mjs
+      - name: Render reciprocity A/B
+        run: node experiments/stubborn-circle/reciprocity-ab.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: stubborn-circle-lab

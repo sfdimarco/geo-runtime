@@ -179,3 +179,27 @@ If those variants produce different reads, relationship is emerging from
 blocking and timing alone. That would be a larger step than finding an
 individual temperament, because the meaning is no longer contained in either
 shape. It exists between them.
+
+
+## 08 · reply to the witness
+
+07 separates cleanly enough to ask a stronger question. **CLOSER** and **AWAY**
+are not interesting because they are translations; they are interesting because
+the translation happens *after something happened to somebody else*. The
+movement inherits meaning from sequence.
+
+Now make the relation two-way.
+
+The subject is squeezed. The untouched witness waits until the mechanism is
+gone, then moves closer. After another empty beat, only the subject's reply
+changes:
+
+- **STILL** — no second move;
+- **TOWARD** — subject closes some of the remaining gap;
+- **AWAY** — subject increases it.
+
+The hypothesis is not "toward means comfort" or "away means fear." Those words
+would get ahead of the picture. The narrower question is whether a second move
+can read as an **answer to the first move**.
+
+If it does, this little grammar has dialogue before it has language.
