@@ -90,6 +90,12 @@ The experiment therefore asks for the smallest useful authoring extension:
 
 The desired behavior is still completely bounded: the topology does not change; only existing solid profile parameters vary over plan time.
 
+## Implementation status
+
+The branch now implements the minimal extension below as **v0.2**: `scale_x` / `scale_y` are encoded in two solid-only pose-mask bits and borrow otherwise-unused solid pose slots. The header, part record, channel stride, topology, and arena ceiling do not change.
+
+`node experiments/stubborn-circle/sweep.mjs` generates the first one-axis recovery-time sheet.
+
 ## Minimal extension candidate
 
 This is intentionally narrower than "animate arbitrary solids."
@@ -115,7 +121,7 @@ For this experiment, preserving area/volume can live in the authoring layer:
 
 `scale_x = 1 / sqrt(scale_y)` (2-D-feeling squash) or an equivalent 3-D compensation.
 
-## Intended cast syntax (NOT VALID v0.1)
+## Intended cast syntax (now valid on this v0.2 experiment branch)
 
 This is a target document for discussion, not something the current compiler should silently accept.
 
