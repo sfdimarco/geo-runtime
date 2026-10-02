@@ -1,0 +1,35 @@
+name: stubborn-circle experiment
+
+on:
+  push:
+    branches:
+      - experiment/stubborn-circle-01
+  workflow_dispatch:
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - run: npm ci
+      - name: Rust unit tests
+        run: cargo test
+      - name: Build kernel
+        run: ./build.sh
+      - name: Run bounded fuzz gate
+        run: node bench/fuzz.mjs
+      - name: Render recovery sweep
+        run: node experiments/stubborn-circle/sweep.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stubborn-circle-recovery-sweep
+          path: experiments/stubborn-circle/recovery-sweep.png
