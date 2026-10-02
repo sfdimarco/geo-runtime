@@ -75,11 +75,19 @@ export const textWidth = (str, k = 2) => String(str).length * 6 * k;
  * ⚠ This is the ONLY rasteriser in the repo, on purpose: a sweep that renders
  *   through a different path tells you about the sweep, not about what ships.
  */
-export function drawCel(dst, DW, ox, oy, CW, CH, m, ix, stride, box) {
+export function drawCel(dst, DW, ox, oy, CW, CH, m, ix, stride, box, groups = null) {
   const [X0, Y0, X1, Y1] = box;
   const sxy = (x, y) => [(x - X0) / (X1 - X0) * CW, CH * (1 - (y - Y0) / (Y1 - Y0))];
   const zb = new Float32Array(CW * CH).fill(-1e30);
+  let gi = 0;
   for (let i = 0; i + 2 < ix.length; i += 3) {
+    // Groups are contiguous INDEX spans emitted in draw order.
+    while (groups && gi + 3 < groups.length &&
+           i >= groups[gi + 1] + groups[gi]) gi += 4;
+    const packed = groups && gi + 3 < groups.length ? groups[gi + 2] : null;
+    const tint = packed == null ? null : [
+      (packed >> 16) & 255, (packed >> 8) & 255, packed & 255
+    ];
     const T3 = [ix[i], ix[i+1], ix[i+2]];
     const p = T3.map(v => { const [sx, sy] = sxy(m[v*stride], m[v*stride+1]); return [sx, sy, m[v*stride+2]]; });
     const ar = (p[1][0]-p[0][0])*(p[2][1]-p[0][1]) - (p[2][0]-p[0][0])*(p[1][1]-p[0][1]);
@@ -98,7 +106,15 @@ export function drawCel(dst, DW, ox, oy, CW, CH, m, ix, stride, box) {
       if (w0 < 0 || w1 < 0 || w0 + w1 > 1) continue;
       const z = p[0][2] + w1*(p[1][2]-p[0][2]) + w0*(p[2][2]-p[0][2]);
       const zi = y*CW + x; if (z <= zb[zi]) continue; zb[zi] = z;
-      const q = ((oy+y)*DW + ox+x)*3; dst[q] = s; dst[q+1] = (s*0.99)|0; dst[q+2] = (s*0.95)|0;
+      const q = ((oy+y)*DW + ox+x)*3;
+      if (tint) {
+        const light = s / 214;
+        dst[q]   = Math.min(255, tint[0] * light) | 0;
+        dst[q+1] = Math.min(255, tint[1] * light) | 0;
+        dst[q+2] = Math.min(255, tint[2] * light) | 0;
+      } else {
+        dst[q] = s; dst[q+1] = (s*0.99)|0; dst[q+2] = (s*0.95)|0;
+      }
     }
   }
 }
