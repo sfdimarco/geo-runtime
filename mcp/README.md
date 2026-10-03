@@ -1,6 +1,6 @@
 # `geo-runtime` as an MCP server
 
-**Five tools. No browser. No cargo. Node and a clone.**
+**Nine tools. No browser. No cargo. Node and a clone.**
 
     npm install
     node mcp/smoke.mjs      # spawns the server, calls every tool, prints a board
@@ -49,6 +49,9 @@ happens now.
 | `geo_validate` | a program | whether the bound held at 15 times, *including outside the plan and at absurd values* |
 | `geo_bench` | a program | mean/min/p50/p95 **and the noise floor**, plus an honest speedup with its caveats attached |
 | `geo_inspect` | a `.geo` file | the 64-byte header, executed nothing |
+| `geo_render` | a program + times, an optional camera window, or `gif:true` | a PNG contact sheet (optionally inline) or an on-disk animated GIF, plus per-frame vertex counts and ceiling compliance |
+| `geo_ab` | two to four labelled casts + times, or `gif:true` | a labelled comparison sheet or animation in one shared frame, with per-frame vertex counts; **no verdict** |
+| `geo_sweep` | a cast, one existing dotted-path axis, and values to try | a labelled contact sheet with the unmodified reference pinned by default and refused values shown as **REFUSED** tiles |
 | `geo_look` | a program + times, or `shots` (one camera window per frame) | **Jev's** typed answers about every frame — empty? where? cut off by the frame? one object? — each beside a **code measurement of the same grid** and `agrees` |
 
 ### `geo_look` — the decision layer
@@ -98,7 +101,7 @@ declares only the `tools` capability.
 
 ## What is not here yet
 
-**The GeoV bridge.** These five tools drive the *runtime*. They do not touch
+**The GeoV bridge.** These nine tools drive the *runtime*. They do not touch
 GeoV Studio, so they do not yet solve the authoring problem — poses, shots, and
 line work still go through the UI.
 

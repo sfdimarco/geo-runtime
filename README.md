@@ -136,7 +136,7 @@ missing phase.
 `hello::RES` is that constant. `run.mjs` reads it **out of the wasm** — the
 harness is never told what it was built from, it asks.
 
-## The MCP server — eight tools, no browser
+## The MCP server — nine tools, no browser
 
     node mcp/install.mjs     # register with Claude Desktop
     node mcp/smoke.mjs       # spawn it and call every tool over real stdio
@@ -153,6 +153,7 @@ harness is never told what it was built from, it asks.
 | `geo_render` | ⭐ **the picture, and the MOTION** — a z-buffer software rasteriser and a GIF encoder, both in pure Node |
 | `geo_ab` | ⭐ **the before/after** — 2–4 casts side by side in one shared frame, still or animated |
 | `geo_sweep` | ⭐⭐ **one axis, many values, one sheet**, the reference pinned in frame |
+| `geo_look` | typed Jev answers about rendered frames, beside code measurements of the same grid; custom questions have no control |
 
 ⚠⚠ **MCP does not make tokens cheaper.** An argument is a token wherever it
 arrives. What is cheap is the *shape*: a statement in, a **summary** out. Every
