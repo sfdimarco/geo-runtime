@@ -5,3 +5,5 @@ _repo.tar.gz
 _sync.tar.gz
 bench/results/smoke.geo
 bench/results/look/
+bench/results/look-smoke/
+bench/results/smoke-look.log

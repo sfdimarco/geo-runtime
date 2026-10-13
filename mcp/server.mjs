@@ -54,6 +54,34 @@ const castIn = {
   res: z.record(z.string(), z.number().int()).optional()
     .describe('Resolution overrides (loft_u, loft_v, sweep_nu, noodle_nv, mitt_u, mitt_v, leaf_u, leaf_v). These drive the ceiling. Out-of-range values are REFUSED by the compiler, which names the offending key.'),
 };
+// 👁 THE GLANCE — shared by geo_look and geo_squint (2026-09-28)
+const glanceIn = {
+  images: z.array(z.object({
+    path: z.string().describe('A PNG (8-bit, any size), absolute or relative to the repo root.'),
+    label: z.string().optional(), t: z.number().optional().describe('A time to print beside it (film seconds, say).'),
+    expect: z.record(z.string(), z.any()).optional().describe('Your own measured answer per custom question — makes it a controlled question (agrees comes back).'),
+    scramble: z.number().int().optional().describe('Shuffle this picture\'s words with this seed (a hand-made control).'),
+  })).min(1).max(8).optional().describe('THE IMAGE DOOR: 1-8 pictures instead of a program. Each is squashed WHOLE to the 16x16 grid.'),
+  grids: z.array(z.object({
+    words: z.array(z.string()).optional().describe('256 colour words, row by row (top row first).'),
+    rows: z.array(z.string()).optional().describe('Or 16 strings of 16 space-separated words.'),
+    label: z.string().optional(), t: z.number().optional(), expect: z.record(z.string(), z.any()).optional(),
+    scramble: z.number().int().optional(),
+  })).min(1).max(8).optional().describe('THE GRID DOOR: 16x16 colour words straight in — a game state, a test pattern. Unknown words are refused by name.'),
+  legend: z.enum(['subject', 'scene']).optional()
+    .describe("subject (default): a matte — the subject on the renderer's background, presets measured. scene: a whole scene — pass presets: [] and ask your own questions."),
+  palette: z.enum(['kill_switch', 'fine']).optional()
+    .describe('The colour words. kill_switch (default): the 19 the kill switch measured. fine: +15 in-between words (cream, peach, lavender, mint, olive...).'),
+  control: z.enum(['scramble']).optional()
+    .describe('scramble: every frame gets a twin with the SAME words in shuffled places (max 4 frames). Each answer returns layout_effect = real - twin.'),
+  baseline: z.boolean().optional().describe('Colour statistics of each grid (lum, warmth, sat, busy, word counts). Default on for scenes and grids.'),
+  compare: z.record(z.string(), z.object({
+    type: z.enum(['boolean', 'choice', 'score']), instructions: z.string(),
+    criteria: z.any().optional().describe('choice: {option: description} — e.g. {f1: "frame f1", f2: "frame f2"}. score: 2-10 levels, lowest first.'),
+  })).optional().describe('Questions asked ONCE about all the frames together — likeness to a reference frame, A/B, "which frame…". Answers come back under `compare`.'),
+  transport: z.enum(['auto', 'vercel', 'openrouter', 'typesafe']).optional()
+    .describe('Which route to Jev. auto (default): OPENROUTER_API_KEY, then TYPESAFE_API_KEY, then AI_GATEWAY_API_KEY — the first key found.'),
+};
 const progIn = {
   geo_path: z.string().optional().describe('Path to an already-compiled .geo binary.'),
   geo_base64: z.string().optional().describe('An already-compiled .geo binary, base64.'),
@@ -259,7 +287,14 @@ server.registerTool('geo_look', {
     'rate-limited call returns fast with the grids and retry_in_s instead of hanging. ' +
     'With no window the frame is auto-fitted to the subject, so nothing can be off screen — pass a ' +
     'window, or `shots` (one window per frame, a storyboard), in MESH coordinates (y_mesh = 1 - y_cast) to judge a real framing. dry_run:true sends ' +
-    'nothing and needs no key.',
+    'nothing and needs no key. ' +
+    'THREE DOORS: a program (above), `images` (1-8 PNGs — film frames, drawings — each squashed whole to the grid; ' +
+    "legend 'scene' for a whole scene, then presets:[] and your own questions), or `grids` (16x16 colour words straight in: " +
+    'a game state, a test pattern). THE GLANCE: control:"scramble" gives every frame a twin with the same words shuffled and ' +
+    'returns layout_effect = real - twin (near 0 = Jev read colour, not layout); palette:"fine" adds 15 in-between colour ' +
+    'words (a pastel world reads tan/grey through the 19); scene frames come back with a colour-statistics `baseline`. ' +
+    'ROUTES: transport auto picks OPENROUTER_API_KEY, then TYPESAFE_API_KEY, then AI_GATEWAY_API_KEY; the ~5-minute wall ' +
+    'was measured on the Vercel route only.',
   inputSchema: {
     ...castIn,
     geo_path: z.string().optional().describe('Look at an already-compiled .geo binary instead of a cast.'),
@@ -281,9 +316,33 @@ server.registerTool('geo_look', {
     wait_s: z.number().int().min(0).max(120).optional().describe('How long to retry a rate-limited call before returning. Default 20.'),
     out_path: z.string().optional().describe('Where to write the frames-beside-grids sheet. Default bench/results/look/look.png.'),
     return_image: z.boolean().optional().describe('Inline that sheet. Default false — it is for a person.'),
+    ...glanceIn,
   },
 }, wrap(T.geo_look));
 
+// ═══ THE SQUINT — the eye's own half, free and instant ═════════════════════
+server.registerTool('geo_squint', {
+  title: 'Squint — the exact 16x16 words the eyes would read, and what code measures on them',
+  description:
+    'The free half of geo_look: frames (a program, 1-8 PNGs, or grids) through the same quadtree and colour words, ' +
+    'returned as grids with measurements and colour-statistics baselines, plus a frames-beside-grids sheet. ' +
+    'NOTHING IS SENT and no key is needed, so squint as often as you like — before a change, after it, between Jev calls. ' +
+    'It answers "what will the eyes actually be looking at?": at 16x16 a colour needs about two whole cells to survive, ink ' +
+    'darkens it, and a pastel world may read as tan and grey (try palette:"fine").',
+  inputSchema: {
+    ...castIn,
+    geo_path: z.string().optional().describe('Squint at an already-compiled .geo binary instead of a cast.'),
+    times: z.array(z.number()).max(8).optional(),
+    frames: z.number().int().min(1).max(8).optional(),
+    window: z.array(z.number()).length(4).optional().describe('[x0,y0,x1,y1] in MESH coordinates (y_mesh = 1 - y_cast).'),
+    shots: z.array(z.object({ t: z.number().optional(), window: z.array(z.number()).length(4) })).min(1).max(8).optional(),
+    include_grid: z.boolean().optional().describe('Return the words. Default true.'),
+    out_path: z.string().optional().describe('Where to write the sheet. Default bench/results/look/squint.png.'),
+    return_image: z.boolean().optional().describe('Inline the sheet. Default false.'),
+    ...glanceIn,
+  },
+}, wrap(T.geo_squint));
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
-process.stderr.write('geo-runtime MCP server ready · 9 tools · no browser required\n');
+process.stderr.write('geo-runtime MCP server ready · 10 tools · no browser required\n');

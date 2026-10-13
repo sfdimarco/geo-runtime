@@ -152,6 +152,66 @@ check('a camera pointed at nothing MEASURES empty — the control can change its
 const nope = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, questions: { 'Bad Name': { type: 'boolean', instructions: 'x' } } } }));
 check('a badly named custom question is REFUSED, by name', nope.ok === false && /Bad Name/.test(nope.message ?? ''), JSON.stringify(nope).slice(0, 200));
 
+console.log('\ngeo_look — THE GLANCE: a picture through the image door, its scrambled twin, the fine palette');
+const png = 'bench/results/smoke-render.png';                       // geo_render wrote it above
+const gl = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, include_grid: true, images: [{ path: png, label: 'smoke' }],
+  legend: 'scene', presets: [], control: 'scramble', palette: 'fine', questions: { calm: { type: 'score', instructions: 'How calm is it?', criteria: ['busy', 'calm'] } } } }));
+check(`the image door answers through MCP · ${gl.frames?.length} frames (real + twin) · ${gl.palette}`,
+  gl.ok && gl.frames.length === 2 && gl.frames[1].twin_of === 'f0' && /fine/.test(gl.palette ?? '') && gl.frames.every((f) => f.baseline && f.grid?.length === 16),
+  JSON.stringify(gl).slice(0, 240));
+const bagOf = (f) => f.grid.join(' ').split(' ').sort().join(',');
+check('the twin has the SAME words in OTHER places (colour kept, layout gone)',
+  gl.frames?.length === 2 && bagOf(gl.frames[0]) === bagOf(gl.frames[1]) && gl.frames[0].grid.join() !== gl.frames[1].grid.join(), 'twin words differ, or were not shuffled');
+
+const cmp = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, frames: 2, presets: [],
+  compare: { same: { type: 'choice', instructions: 'Which frame looks most like frame f0?', criteria: { f0: 'frame f0', f1: 'frame f1' } } } } }));
+check('compare: ONE question across all frames (not one per frame)', cmp.ok && cmp.question_count === 1, JSON.stringify(cmp).slice(0, 160));
+
+console.log('\ngeo_look — the grid door');
+const gw = Array(256).fill('black'); [[1, 1], [2, 1], [1, 2], [2, 2]].forEach(([c, rr]) => { gw[rr * 16 + c] = 'red'; });
+const gd = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, grids: [{ words: gw, label: 'red block' }], presets: ['empty', 'where', 'touches_edge'] } }));
+check('a red block in the corner MEASURES top_left, not empty, not cut off',
+  gd.ok && gd.frames[0].measured.where === 'top_left' && !gd.frames[0].measured.empty && !gd.frames[0].measured.touches_edge, JSON.stringify(gd.frames?.[0]?.measured));
+const gbad = j(await client.callTool({ name: 'geo_look', arguments: { dry_run: true, grids: [{ words: Array(256).fill('chartreuse') }] } }));
+check('a colour word the eye does not have is REFUSED, by name', gbad.ok === false && /chartreuse/.test(gbad.message ?? ''), JSON.stringify(gbad).slice(0, 160));
+
+console.log('\ngeo_squint — the free half of the eye');
+const sq = j(await client.callTool({ name: 'geo_squint', arguments: { images: [{ path: png }], legend: 'scene' } }));
+check(`squint: ${sq.frames?.length} grid + baseline, nothing sent, no key needed`,
+  sq.ok && sq.squint && sq.dry_run && sq.frames[0].grid.length === 16 && typeof sq.frames[0].baseline?.lum === 'number', JSON.stringify(sq).slice(0, 200));
 await client.close();
+
+console.log('\ngeo_look — THE ROUTE: a live call to a MOCK OpenRouter over real stdio (nothing leaves this machine)');
+const http = await import('node:http');
+let seen = null;
+const mock = http.createServer((req, res) => {
+  let b = ''; req.on('data', (d) => { b += d; });
+  req.on('end', () => {
+    seen = { url: req.url, auth: req.headers.authorization, body: JSON.parse(b) };
+    const answers = {};
+    for (const [k, q] of Object.entries(seen.body.questions)) {
+      answers[k] = q.type === 'noul' ? { type: 'noul', noul: 0.91 }
+        : q.type === 'choice' ? { type: 'choice', choice: Object.keys(q.criteria)[0], confidence: 0.8, probabilities: { [Object.keys(q.criteria)[0]]: 0.9 } }
+        : { type: 'score', score: 1, confidence: 0.7, probabilities: { 0: 0.1, 1: 0.9 }, legend: { 0: q.criteria[0], 1: q.criteria[1] } };
+    }
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ id: 'gen-dec-smoke', model: 'typesafe/jev-1.13', provider: 'TypeSafe', answers, usage: { input_tokens: 42, output_tokens: 1, cost: 0.0000018 } }));
+  });
+});
+await new Promise((r) => mock.listen(0, '127.0.0.1', r));
+const port = mock.address().port;
+const c2 = new Client({ name: 'geo-smoke-route', version: '0.1.0' });
+await c2.connect(new StdioClientTransport({ command: process.execPath, args: [path.join(HERE, 'server.mjs')], stderr: 'pipe',
+  env: { ...process.env, JEV_TRANSPORT: 'openrouter', OPENROUTER_API_KEY: 'smoke-not-a-key', JEV_ENDPOINT_OPENROUTER: `http://127.0.0.1:${port}/api/alpha/decisions`,
+         GEO_LOOK_OUT: path.join(HERE, '..', 'bench', 'results', 'look-smoke') } }));
+const lv = JSON.parse((await c2.callTool({ name: 'geo_look', arguments: { frames: 1, presets: ['empty'], questions: { tall: { type: 'boolean', instructions: 'Is it tall?' } }, wait_s: 0 } })).content[0].text);
+check(`openrouter route: ${lv.transport} · ${lv.frames?.[0]?.jev?.tall?.answer} (p ${lv.frames?.[0]?.jev?.tall?.p}) · $${lv.cost_usd}`,
+  lv.ok && lv.transport === 'openrouter' && lv.frames[0].jev.tall.answer === true && lv.frames[0].jev.tall.p === 0.91 && lv.cost_usd === 0.0000018 && lv.next_answer_in_s === 0,
+  JSON.stringify(lv).slice(0, 240));
+check("it spoke TypeSafe's shape: model typesafe/jev-1.13, booleans as noul, the key as a bearer",
+  seen?.body?.model === 'typesafe/jev-1.13' && Object.values(seen.body.questions).every((q) => q.type !== 'boolean') && seen.auth === 'Bearer smoke-not-a-key' && /alpha\/decisions/.test(seen.url),
+  JSON.stringify(seen?.body?.questions ?? {}).slice(0, 160));
+await c2.close(); mock.close();
+
 console.log(`\n${fails === 0 ? '✅ MCP SMOKE: ALL GREEN' : `✖ MCP SMOKE: ${fails} FAILED`}`);
 process.exit(fails === 0 ? 0 : 1);

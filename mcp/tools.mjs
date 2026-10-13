@@ -282,6 +282,17 @@ export async function geo_look(args = {}) {
   return look(args, { readCast, abs });
 }
 
+// ═══ geo_squint — the eye's free half: the grids and the measurements, nothing sent ═══
+export async function geo_squint(args = {}) {
+  const { look } = await import('./look.mjs');
+  const scene = args.legend === 'scene';
+  const r = await look({ ...args, presets: args.presets ?? (scene ? [] : undefined), questions: {}, dry_run: true,
+    include_grid: args.include_grid ?? true, out_path: args.out_path ?? 'bench/results/look/squint.png' }, { readCast, abs });
+  delete r.question_count; delete r.transport;
+  return { ...r, squint: true,
+    note: 'Nothing was sent to Jev. These are the exact words the eyes would read, with what code measures on them. Squint before and after every change — it is free.' };
+}
+
 export async function geo_render(args = {}) {
   const { render } = await import('../tools/render.mjs');
   const gif = !!args.gif;
