@@ -20,6 +20,15 @@ shipped real work. It is the oracle here, not a straw man: every correctness
 check compares against v36's own `gcBuildForm` running in the same JS context on
 the same input.
 
+**The number to cite is a same-run ratio.** On the 5,787-vertex character,
+geo-runtime against GeoV `gcBuildForm`, both timed in the same run, measured
+**7.5× and 7.0×**. Across runs the band is **6–10×**. Absolute milliseconds do
+not travel between machines; this ratio does, because both sides were timed
+together. That is the current claim: two same-run ratios on one character,
+inside that band, and nothing wider.
+
+### A recorded run against a stored baseline — not the claim above
+
 | | GeoV v36 (JS) | geo-runtime (Rust/WASM) | |
 |---|---|---|---|
 | build the same 5,787-vertex character | 1.960 ms | **0.195 ms** mean · 0.265 ms worst | **10.0×** ¹ |
@@ -29,16 +38,19 @@ the same input.
 | geometry identical to the oracle | — | 14 times along the plan, 0 index mismatches | worst Δ **8.2e-7** (6.9 ULP) |
 | linear memory growth across a run | — | **0 pages** (257 → 257) | |
 
-¹ One run. The GeoV time is a stored baseline from BENCH-002, not re-measured alongside;
-other runs have printed between 6.0× and 10.2×.
+¹ One run. The GeoV time is a stored baseline from BENCH-002, not re-measured
+alongside, so this **10.0×** is not the current claim. Same-run ratios on this
+character are **7.0× and 7.5×**, inside a **6–10×** band. Other runs that divide
+a fresh build time by the stored 1.960 ms have printed between 6.0× and 10.2×.
 
 The gate the build plan named ahead of time was 1.93 ms. Worst case came in at
 0.265 ms.
 
-### The intermediate result that matters more than the headline
+### Older single-machine exploratory measurement — not the current claim
 
 Before writing any Rust, three variants of the same geometry pass were measured
-against each other (`bench/baseline/`):
+against each other on one machine (`bench/baseline/`, BENCH-002). The table is
+kept so the history is visible. It is **not** the investor claim.
 
 | | ms | |
 |---|---|---|
@@ -46,11 +58,13 @@ against each other (`bench/baseline/`):
 | **B** — the same JS, writing into a preallocated typed arena | 0.553 | **3.5×**, no language change |
 | **C** — Rust/WASM over the same arena | 0.187 | **10.5×** |
 
-**Two-thirds of the win was the memory discipline, not the language.** Variant B
-is one afternoon of work inside the existing JS engine and it was never refused;
-it is on the table as a cheap alternative to everything below. The rebuild was
-chosen for what the *format* enables, not for the extra 3×, and stating that
-plainly is part of the result.
+A reading of this table — **"two-thirds of the win was the memory discipline,
+not the language"** — is retired. Later same-run work put the arena-alone share
+of the A−C gap at about **0.43–0.47**, not two-thirds. Variant B is still one
+afternoon of work inside the existing JS engine, and it was never refused; it
+remains on the table as a cheap alternative to everything below. The rebuild was
+chosen for what the *format* enables. The 3.5× and 10.5× above belong only to
+this older measurement.
 
 ---
 
@@ -214,7 +228,8 @@ Measured inside the frame, over 60 frames, at t = 0:
 | submit | 0.033 | 2% |
 | **CPU total** | **1.360** | |
 
-The build got roughly 6–10× faster (see ¹) and is now a rounding error next to the upload of the
+The build is about **7×** on the same-run ratio (**7.0× and 7.5×** measured;
+band **6–10×** — see §1) and is now a rounding error next to the upload of the
 same 305 KiB. The next honest win is not more decode speed — it is not
 re-uploading a buffer whose topology never changes, and uploading only the
 vertex block that the pose actually moved. That work is named and not yet done.
@@ -235,7 +250,7 @@ Two further caveats stated rather than buried:
 
 | decision | why | what it cost |
 |---|---|---|
-| **Ground-up rebuild, not a strangler** | The format only earns its keep if the runtime is built around the bound. A typed arena bolted into v36 (variant B) gets 3.5× and keeps every structural constraint. | Variant B was cheaper and was never refused. This is a bet on the format, and it should be read as one. |
+| **Ground-up rebuild, not a strangler** | The format only earns its keep if the runtime is built around the bound. A typed arena bolted into v36 (variant B) measured **3.5×** on an older single-machine exploratory run (`bench/baseline/`) and keeps every structural constraint. That 3.5× is not the current claim. | Variant B was cheaper and was never refused. The reading that it was two-thirds of the win is retired: later same-run work put the arena-alone share of the A−C gap at about **0.43–0.47**. This is a bet on the format, and it should be read as one. |
 | **No `no_std`** | `sin`/`cos`/`sqrt` come from libm via `std` on wasm32. | ~15 KB. Measured, accepted. |
 | **No wasm-bindgen / wasm-pack** | A `cdylib` with `extern "C"` exports over a static arena *is* the bridge. Zero imports means `WebAssembly.instantiate(bin, {})`. | Manual pointer bookkeeping in JS. Worth it: the import table is the surface where a "zero-copy" claim usually stops being true. |
 | **f64 pose arithmetic, f32 storage** | The first port did pose math in f32 and drifted 2.578e-6 (21.7 ULP) from the oracle. Widening to f64 brought it to 8.196e-7 (6.9 ULP). | The remaining floor is the format's own f32 storage. That is a stated cost, not a bug. |
@@ -314,5 +329,9 @@ Stated here rather than left for a reader to discover:
 - **Raster numbers are software** (SwiftShader), as above.
 - **One character, one plan.** Correctness is proven against a single 9-part
   test character at 14 times. It is a deep check of a narrow input.
-- **Variant B (typed arena inside v36) was never refused** — 3.5× for an
-  afternoon, no format, no rewrite. It remains the honest cheap alternative.
+- **Variant B (typed arena inside v36) was never refused.** On the older
+  single-machine exploratory measurement it was 3.5× for an afternoon, no
+  format, no rewrite. Later same-run work retired the two-thirds reading
+  (arena-alone share of the A−C gap ~**0.43–0.47**). It remains the honest
+  cheap alternative. The current speed claim is the same-run **7.0× and 7.5×**
+  (band **6–10×**).

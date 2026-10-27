@@ -113,29 +113,35 @@ front, never replaced.</p>
 <div class="scroll">
 <table>
   <tr><th>Result</th><th></th></tr>
-  <tr class="win"><td>Mesh build, this runtime vs. the JavaScript engine it replaces</td><td class="win">0.195 ms vs 1.960 ms &mdash; 10.0&times;</td></tr>
+  <tr class="win"><td>Mesh build, same run, vs GeoV <code>gcBuildForm</code> on the 5,787-vertex character</td><td class="win">7.0&times; and 7.5&times; (band 6&ndash;10&times;)</td></tr>
+  <tr><td>One recorded run against a stored GeoV baseline (not the claim above)</td><td>0.195 ms vs 1.960 ms &mdash; 10.0&times;</td></tr>
   <tr><td>The whole program that draws the character</td><td>2,320 bytes</td></tr>
   <tr><td>Output checked against the original, point by point, at 14 moments along the plan</td><td>byte-identical</td></tr>
   <tr><td>Deliberately corrupted programs thrown at the loader</td><td>4,000 &rarr; 0 crashes</td></tr>
   <tr><td>Full proof suite, one command (<code>./test.sh</code>), six gates</td><td>~90 s, all green</td></tr>
 </table>
 </div>
-<p style="font-size:13px;color:var(--faint);margin-top:2px">The 10.0&times; was measured on one
-reference machine. <b style="color:var(--dim);font-weight:600">The live demo above reports its own
-timings on yours</b> &mdash; and measures the GeoV baseline in the same frame &mdash; so the
-multiple it shows will differ from this one. That in-frame comparison is the honest number;
-this row is the one from the recorded run.</p>
+<p style="font-size:13px;color:var(--faint);margin-top:2px">The current claim is the
+same-run pair, <b style="color:var(--dim);font-weight:600">7.0&times; and 7.5&times;</b>, inside a
+6&ndash;10&times; band. The 10.0&times; row is one recorded run against a stored baseline, not a
+same-run ratio. <b style="color:var(--dim);font-weight:600">The live demo above reports its own
+timings on yours</b> and measures the GeoV baseline in the same frame, so the multiple it
+shows will differ from both.</p>
 
 <h2>What this does not prove</h2>
 <div class="honest">
 <ul>
-  <li><b>The 10&times; is no longer where the time goes.</b> Uploading the mesh to the GPU is now
+  <li><b>The decode speedup is no longer where the time goes.</b> Uploading the mesh to the GPU is now
     <b>84% of the CPU frame</b> and the build is 14%. Making the build faster again would barely
     move the total. The next real win is the upload, not the decode.</li>
-  <li><b>A control that could have embarrassed the result was run, and it nearly did.</b> The same
-    JavaScript, writing into a pre-allocated typed array with no rewrite at all, cleared the same
-    performance gate at 3.5&times;. Architecture accounts for 3.5&times; of the win; the language
-    change accounts for 3.0&times;.</li>
+  <li><b>A cheaper control was run, and it was never refused.</b> The same
+    JavaScript, writing into a pre-allocated typed array with no rewrite, is an
+    afternoon inside the existing engine. An older single-machine exploratory
+    measurement printed 3.5&times; for that change and 10.5&times; for the Rust/WASM
+    rebuild. Those figures are not the current claim, and the reading that the
+    arena was two-thirds of the win is retired: later same-run work put the
+    arena-alone share of the gap between the stock engine and the rebuild at
+    about 0.43&ndash;0.47.</li>
   <li><b>The memory ceiling is declared, not derived.</b> It is asserted by the format and fuzzed
     hard, but it is not yet computed from the structure itself.</li>
   <li>One character, one plan &mdash; a deep check of a narrow input, not a broad one.</li>
