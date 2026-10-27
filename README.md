@@ -5,8 +5,9 @@ that executes. Rust/WASM hosts it, WebGL2 displays it.
 
 **Sprint 0** · the instrument — a scoreboard exists before the engine does.
 **Sprint 1** · the slice — the dummy renders from the `.geo` binary, posed,
-at three angles, **6–10× faster than GeoV** across runs for the same 5,787 vertices
-(the GeoV time is a stored baseline — see [the numbers](#sprint-1--the-numbers)).
+at three angles, **about 7× faster than GeoV** on the same run for the same
+5,787 vertices (measured **7.0× and 7.5×**, band **6–10×** — see
+[the numbers](#sprint-1--the-numbers)).
 
 **v0.1** · a `hand` may carry a **profile**, so a foot that moves can be the
 slab boot it looks like. Additive — no header change, no part-record change, and
@@ -69,16 +70,18 @@ the single file is a build artifact, not a constraint.
 | the `.geo` program | **2,320 bytes** — 9 parts, 3 poses, 4 beats |
 | the mesh it expands to | 305 KiB · 5,787 verts · 10,600 tris · **135×** |
 | `geo_build` | **0.20 ms** mean, 0.21 ms worst |
-| GeoV `gcBuildForm`, same mesh | 1.960 ms |
-| | **10.2×** in that run, and the gate the plan named was 1.93 ms |
+| GeoV `gcBuildForm`, same mesh | 1.960 ms (stored BENCH-002 baseline) |
+| stored-baseline ratio, that run | **10.2×** — not the current claim; the gate the plan named was 1.93 ms |
+| same-run ratio vs `gcBuildForm` | **7.0× and 7.5×** (band **6–10×**) |
 | validation | identical to GeoV at 14 times along the plan · 0 index mismatches |
 | the bound | 4,000 mutated programs · 736 accepted and executed · 0 traps, 0 overruns |
 
-⚠ **The GeoV time is a stored baseline**, measured once in BENCH-002 (`BASELINE_MS` in
-`bench/sprint1.mjs`), not re-measured in the same run, so the ratio depends on the machine:
-runs have printed between 6.0× (a fresh container, 2026-09-30) and 10.2×. Timing GeoV's
-`gcBuildForm` in the same run — the validate gate already runs it for correctness — would
-make the ratio machine-independent.
+⚠ **The 10.2× row divides a build time by a stored baseline**, measured once in
+BENCH-002 (`BASELINE_MS` in `bench/sprint1.mjs`), not re-measured in that run, so
+that ratio depends on the machine: runs have printed between 6.0× (a fresh
+container, 2026-09-30) and 10.2×. The current claim is the same-run ratio —
+GeoV's `gcBuildForm` and this runtime timed together on the 5,787-vertex
+character — **7.0× and 7.5×**, inside a **6–10×** band.
 
 ⭐ **Every frame lands exactly on the header's declared ceiling** — the bound is
 derived from the part counts, so it is tight rather than padded.

@@ -177,11 +177,16 @@ editor can go get it.
 
 **3 · The predecessor is the real competitor.** GeoV v36 ships, has an editor, a
 plan timeline, PLATE fills, and users. And **variant B — a typed arena inside
-v36's existing JavaScript — measured 3.5× for roughly an afternoon of work, with
-no new format and no rewrite.** Two-thirds of the total speedup, for a rounding
-error of the cost. Any reader evaluating this should weigh that: the rebuild is
-a bet on the format's future, not a rescue of a performance problem, and the
-cheap fix was never refused.
+v36's existing JavaScript — is roughly an afternoon of work, with no new format
+and no rewrite.** An older single-machine exploratory measurement
+(`bench/baseline/`) printed **3.5×** for that change and **10.5×** for the
+Rust/WASM rebuild. Those figures are not the current claim. Same-run A/C on the
+5,787-vertex character is **7.0× and 7.5×** (band **6–10×**) against GeoV
+`gcBuildForm`. The sentence that the arena was two-thirds of the win is retired:
+the arena-alone share of the A−C gap measured about **0.43–0.47**. Any reader
+evaluating this should weigh the cheap alternative: the rebuild is a bet on the
+format's future, not a rescue of a performance problem, and the cheap fix was
+never refused.
 
 **4 · WebGPU widens the gap in raw capability.** Three.js's WebGPU renderer is
 mature enough for production. `.geo` is WebGL2.
@@ -213,10 +218,11 @@ Not a product. A **six-day, ground-up systems build** with:
 - and a written statement of what is *not* proven, in the architecture doc, above
   the fold rather than in a footnote.
 
-The strongest signal here is not the 10×. It is that **the 10× is reported next
-to the fact that the build is now 14% of the CPU frame and the buffer upload is
-84%** — the win named, the new bottleneck named in the same table, and the
-cheaper alternative that was never refused named in both documents.
+The strongest signal here is not the speedup. It is that **the same-run ~7×
+(7.0× and 7.5×, band 6–10×) is reported next to the fact that the build is now
+14% of the CPU frame and the buffer upload is 84%** — the win named, the new
+bottleneck named in the same table, and the cheaper alternative that was never
+refused named in both documents.
 
 ---
 
