@@ -151,6 +151,39 @@ function gridOf(root, pal = PALETTE) {
   }
   return g;
 }
+// ✏ THE INK CHANNEL (2026-11-22, opt-in `detail: true`; every call without it is byte-identical).
+// WHY. Each colour word is a cell's AVERAGE colour, so a thin black outline averages into its fill and
+// vanishes. Measured on cel frames (BinaryQuadTreeCPUTest VISION_TOKENS.md): ~70% of what a frame holds
+// sits on outlines. So each cell gets a second word that says how much is LOST when the cell is shrunk
+// to one colour — detail as frequency ("colour as a wave"), not colour as a place. Read from THE SAME
+// GEO tree as the colour words, so the codec, the tokenizer and the eye share one tree:
+//   flat  the whole cell merged in the tree: it survives being shrunk to one colour
+//   soft  its four quarters each merged: it survives being shrunk to 2 x 2 (a smooth change)
+//   edge  finer detail than that: a sharp change between colours
+//   ink   finer detail AND a dark drawn line in it (some pixels much darker than the cell, not most)
+const DETAIL_WORDS = ['flat', 'soft', 'edge', 'ink'];
+const INK_LUMA = 110, INK_DROP = 40;    // a line pixel: luma below 110 AND 40 below the cell mean (0-255)
+function detailOf(root, px) {
+  const g = new Array(N * N).fill('flat');
+  for (const n of leavesAt(root, D)) {
+    if (!n.k) continue;                                         // merged at or above the cell: flat
+    let word = n.k.every(ch => !ch.k) ? 'soft' : null;
+    if (!word) {
+      let sum = 0; const ys = [];
+      for (let y = n.y; y < n.y + n.s; y++) for (let x = n.x; x < n.x + n.s; x++) {
+        const i = (y * W + x) * 3, v = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]; ys.push(v); sum += v;
+      }
+      const m = sum / ys.length; let dark = 0;
+      for (const v of ys) if (v < INK_LUMA && v < m - INK_DROP) dark++;
+      word = dark > 0 && dark < ys.length / 2 ? 'ink' : 'edge';
+    }
+    g[(n.y / CELL) * N + n.x / CELL] = word;
+  }
+  return g;
+}
+const LEGEND_DETAIL = ` Each frame also has "detail", a second ${N} x ${N} grid in the same cell order. Its word says how much of a cell is lost ` +
+  `when the cell is shrunk to one colour: flat = nothing is lost, the cell is one colour; soft = a smooth change such as shading; ` +
+  `edge = a sharp change between two colours; ink = a dark drawn line (an outline) runs through the cell.`;
 const BG_WORD = nearestName(BG);   // what the renderer's empty background reads as
 const LEGEND = `Each frame is a ${N} x ${N} grid of cells. picture[0] is the top row and picture[${N - 1}] is the bottom row. ` +
   `In each row the first word is the left edge and the last word is the right edge. Each word is the colour of one cell. ` +
@@ -316,17 +349,21 @@ const lastPath = path.join(OUT_DIR, 'last-answer.json');
 function lastAnswer() { try { return JSON.parse(fs.readFileSync(lastPath, 'utf8')); } catch { return null; } }
 
 /** One picture: each frame beside the 16 x 16 grid Jev is handed. For a PERSON. */
+const DETAIL_SHADE = { flat: [24, 24, 28], soft: [96, 96, 104], edge: [176, 176, 184], ink: [250, 250, 250] };   // neutral greys, darkest = nothing lost
 function sheetOf(frames) {
-  const S = 128, P = 6, LH = 22, Wd = frames.length * (2 * S + 3 * P), Hd = S + LH + P;
+  const K = frames.some(f => f.detail) ? 3 : 2;
+  const S = 128, P = 6, LH = 22, Wd = frames.length * (K * S + (K + 1) * P), Hd = S + LH + P;
   const img = canvasOf(Wd, Hd, [12, 13, 16]);
   frames.forEach((f, i) => {
-    const ox = i * (2 * S + 3 * P) + P;
+    const ox = i * (K * S + (K + 1) * P) + P;
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
       const s = ((y * 2) * W + x * 2) * 3, d = ((LH + y) * Wd + ox + x) * 3;
       if (f.px) { img[d] = f.px[s]; img[d+1] = f.px[s+1]; img[d+2] = f.px[s+2]; }
       else { const q = PAL[f.grid[Math.floor(y / (S / N)) * N + Math.floor(x / (S / N))]]; img[d] = q[0]; img[d+1] = q[1]; img[d+2] = q[2]; }   // a grid came in: no picture
       const rgb = PAL[f.grid[Math.floor(y / (S / N)) * N + Math.floor(x / (S / N))]];
       const e = ((LH + y) * Wd + ox + S + P + x) * 3; img[e] = rgb[0]; img[e+1] = rgb[1]; img[e+2] = rgb[2];
+      if (f.detail) { const q = DETAIL_SHADE[f.detail[Math.floor(y / (S / N)) * N + Math.floor(x / (S / N))]];
+        const e2 = ((LH + y) * Wd + ox + 2 * (S + P) + x) * 3; img[e2] = q[0]; img[e2+1] = q[1]; img[e2+2] = q[2]; }
     }
     text(img, Wd, `${f.id.toUpperCase()} T=${f.t.toFixed(2)}`, ox, 5, 2);
   });
@@ -371,15 +408,18 @@ export async function look(args = {}, { readCast, abs }) {
     if (args.legend === 'scene' && presets.length) throw new Error("presets assume an empty background — with legend 'scene' pass presets: [] and ask custom questions");
     from = what;
     frames = list.map((im, i) => {
-      let pic = null, grid;
-      if (images) { pic = area256(decodePNG(fs.readFileSync(abs(im.path)))); grid = gridOf(buildTree(pic), pal); }
+      let pic = null, grid, detail;
+      if (images) { pic = area256(decodePNG(fs.readFileSync(abs(im.path)))); const tree = buildTree(pic); grid = gridOf(tree, pal);
+        if (args.detail) detail = detailOf(tree, pic); }
       else {
+        if (args.detail) throw new Error('detail is read from pixels — the grid door has none (use images or a program)');
         grid = Array.isArray(im.words) ? [...im.words] : Array.isArray(im.rows) ? im.rows.flatMap(r => String(r).trim().split(/\s+/)) : null;
         if (!grid || grid.length !== N * N) throw new Error(`grid ${i}: pass words (${N * N} colour words) or rows (${N} strings of ${N} words)`);
         const bad = grid.find(w => !PAL[w]); if (bad) throw new Error(`grid ${i}: "${bad}" is not a colour word (${Object.keys(PAL).join(' ')})`);
       }
-      if (im.scramble !== undefined && im.scramble !== null && im.scramble !== false) grid = scrambleGrid(grid, Number(im.scramble) || 1);
-      return { id: `f${i}`, label: im.label ?? (im.path ? path.basename(im.path) : `grid ${i}`), t: im.t ?? 0, px: pic, grid, measured: measure(grid),
+      if (im.scramble !== undefined && im.scramble !== null && im.scramble !== false) {
+        grid = scrambleGrid(grid, Number(im.scramble) || 1); if (detail) detail = scrambleGrid(detail, Number(im.scramble) || 1); }
+      return { id: `f${i}`, label: im.label ?? (im.path ? path.basename(im.path) : `grid ${i}`), t: im.t ?? 0, px: pic, grid, detail, measured: measure(grid),
                verts: null, within_ceiling: null, expect: im.expect ?? null, path: im.path, scrambled: im.scramble != null && im.scramble !== false };
     });
     T = frames.map(f => f.t);
@@ -408,8 +448,8 @@ export async function look(args = {}, { readCast, abs }) {
       const b = K.build(t), m = K.meshView(), ix = K.idxView();
       const px = canvasOf(W, W);
       drawCel(px, W, 0, 0, W, W, m, ix, b.stride, boxes[i]);
-      const grid = gridOf(buildTree(px), pal);
-      return { id: `f${i}`, t, px, grid, measured: measure(grid), verts: b.verts, within_ceiling: b.verts <= header.maxVerts };
+      const tree = buildTree(px), grid = gridOf(tree, pal), detail = args.detail ? detailOf(tree, px) : undefined;
+      return { id: `f${i}`, t, px, grid, detail, measured: measure(grid), verts: b.verts, within_ceiling: b.verts <= header.maxVerts };
     });
 
 
@@ -418,13 +458,16 @@ export async function look(args = {}, { readCast, abs }) {
   if (args.control === 'scramble') {
     if (frames.length > 4) throw new Error("control: 'scramble' doubles the frames — pass at most 4 (8 per look)");
     frames = frames.flatMap((f, i) => {
-      const g = scrambleGrid(f.grid, 1000 + i);
-      return [f, { ...f, id: `${f.id}s`, label: `${f.label ?? f.id} (scrambled twin)`, grid: g, measured: measure(g), twin_of: f.id, scrambled: true, expect: null }];
+      const g = scrambleGrid(f.grid, 1000 + i), dg = f.detail ? scrambleGrid(f.detail, 1000 + i) : undefined;
+      return [f, { ...f, id: `${f.id}s`, label: `${f.label ?? f.id} (scrambled twin)`, grid: g, detail: dg, measured: measure(g), twin_of: f.id, scrambled: true, expect: null }];
     });
   }
   const baselines = args.baseline ?? (args.legend === 'scene' || !!grids);
-  const state = { legend: args.legend === 'scene' ? LEGEND_SCENE : LEGEND, frames: Object.fromEntries(frames.map(f => [f.id, {
-    time: +f.t.toFixed(3), picture: Array.from({ length: N }, (_, r) => f.grid.slice(r * N, r * N + N).join(' ')) }])) };
+  const rowsOf = (g) => Array.from({ length: N }, (_, r) => g.slice(r * N, r * N + N).join(' '));
+  const state = { legend: (args.legend === 'scene' ? LEGEND_SCENE : LEGEND) + (args.detail ? LEGEND_DETAIL : ''),
+    frames: Object.fromEntries(frames.map(f => [f.id, args.detail
+      ? { time: +f.t.toFixed(3), picture: rowsOf(f.grid), detail: rowsOf(f.detail) }
+      : { time: +f.t.toFixed(3), picture: rowsOf(f.grid) }])) };
   const questions = {};
   for (const f of frames) {
     const lead = `Look only at frame ${f.id} (time ${f.t.toFixed(2)}) in "frames". `;
@@ -449,6 +492,7 @@ export async function look(args = {}, { readCast, abs }) {
       : shots ? 'one camera window per shot (squared)' : args.window ? 'your window (squared)' : 'auto-fit to the subject — nothing can leave this frame; pass a window or shots to judge a real framing',
     sheet: sheetPath, est_tokens: estTokens, question_count: Object.keys(questions).length,
     palette: palName === 'kill_switch' ? undefined : `${palName} (${pal.length} words)`,
+    detail: args.detail ? 'ink channel on: each frame also carries a detail grid (flat / soft / edge / ink) read from the same tree' : undefined,
     control: args.control === 'scramble' ? 'scramble: each fN has a twin fNs with the same words shuffled — layout_effect = real − twin' : undefined,
     transport: tp.key ? tp.name : `${tp.name} (no key found)`,
     image: args.return_image ? { mimeType: 'image/png', base64: png.toString('base64') } : undefined,
@@ -460,6 +504,8 @@ export async function look(args = {}, { readCast, abs }) {
     if (f.twin_of) row.twin_of = f.twin_of;
     if (baselines) row.baseline = baselineOf(f.grid);
     if (args.include_grid) row.grid = state.frames[f.id].picture;
+    if (args.include_grid && f.detail) row.detail = state.frames[f.id].detail;
+    if (f.detail) row.detail_counts = Object.fromEntries(DETAIL_WORDS.map(w => [w, f.detail.filter(x => x === w).length]));
     if (answers) {
       row.jev = {};
       for (const p of presets) {

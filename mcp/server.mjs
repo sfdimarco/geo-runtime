@@ -75,6 +75,7 @@ const glanceIn = {
   control: z.enum(['scramble']).optional()
     .describe('scramble: every frame gets a twin with the SAME words in shuffled places (max 4 frames). Each answer returns layout_effect = real - twin.'),
   baseline: z.boolean().optional().describe('Colour statistics of each grid (lum, warmth, sat, busy, word counts). Default on for scenes and grids.'),
+  detail: z.boolean().optional().describe('THE INK CHANNEL: a second 16x16 grid per frame, read from the same tree: flat / soft / edge / ink = how much a cell loses when shrunk to one colour. Shows outlines the colour words average away. Not for the grid door. Default off.'),
   compare: z.record(z.string(), z.object({
     type: z.enum(['boolean', 'choice', 'score']), instructions: z.string(),
     criteria: z.any().optional().describe('choice: {option: description} — e.g. {f1: "frame f1", f2: "frame f2"}. score: 2-10 levels, lowest first.'),
