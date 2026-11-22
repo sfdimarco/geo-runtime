@@ -5,8 +5,8 @@ that executes. Rust/WASM hosts it, WebGL2 displays it.
 
 **Sprint 0** · the instrument — a scoreboard exists before the engine does.
 **Sprint 1** · the slice — the dummy renders from the `.geo` binary, posed,
-at three angles, **about 7× faster than GeoV** on the same run for the same
-5,787 vertices (measured **7.0× and 7.5×**, band **6–10×** — see
+at three angles. Building its 5,787 vertices takes about 0.2 ms; measured in the same run
+against GeoV's own builder, the ratio was 7.0× and 7.5× (band 6–10× across runs — see
 [the numbers](#sprint-1--the-numbers)).
 
 **v0.1** · a `hand` may carry a **profile**, so a foot that moves can be the

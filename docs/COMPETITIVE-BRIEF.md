@@ -28,7 +28,7 @@ axis, X wins.** What follows says so specifically.
 | **Direct** | Rive (`.riv`), Spine (`.skel`) | Binary formats that carry animation *and behaviour*, with runtimes built to execute them. Rive is the closest philosophical rival. |
 | **Indirect** | glTF 2.0 (+ `KHR_interactivity`), Lottie / dotLottie | Interchange formats that solve the same delivery problem a different way. glTF is becoming a direct rival — see §5. |
 | **Adjacent** | Three.js, Babylon.js, PlayCanvas | Not formats. General renderers that could host any of this and already host most of it. |
-| **Substitute** | **Ship an MP4.** | Not a joke, and it is the incumbent that actually wins most of the time. GeoV's own `SIGNAL.geov` is 2.1 MB against a 345 MB MP4 of the same piece — a 220:1 win the predecessor already banked. The substitute has zero engineering cost and infinite compatibility. |
+| **Substitute** | **Ship an MP4.** | Not a joke, and it is the incumbent that actually wins most of the time. GeoV's own `SIGNAL.geov` is 2.1 MB and a 345 MB MP4 of the same piece exists, but they are not the same kind of file: the `.geov` needs GeoV to play, the MP4 plays anywhere. The substitute has zero engineering cost and infinite compatibility. |
 
 The honest landscape axes are not "breadth vs depth." They are:
 
